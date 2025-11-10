@@ -132,7 +132,7 @@ export default function TodoScreen(){
     else{
       Alert.alert(
         `'${item.title}'`,
-        '상세보기/수정'
+        '상세보기/수정 기능 구현 중'
       );
     }
   };
