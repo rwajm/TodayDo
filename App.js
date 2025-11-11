@@ -1,19 +1,26 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import SignUpEmail from './src/screens/SignUp_Email';
-import BottomTabNavigator from './src/navigation/BottomNavigator';
+import NextScreen from './src/screens/NextScreen'; // 다음 화면 컴포넌트
 
-const Stack = createStackNavigator(); 
+const Stack = createNativeStackNavigator();
 
 export default function App() {
-  return(
+  return (
     <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen name="Main" component={BottomTabNavigator} options={{headerShown: false}}/>
+      <Stack.Navigator initialRouteName="SignUpEmail">
+        <Stack.Screen
+          name="SignUpEmail"
+          component={SignUpEmail}
+          options={{ title: '회원가입 이메일' }}
+        />
+        <Stack.Screen
+          name="NextScreen"
+          component={NextScreen}
+          options={{ title: '다음 화면' }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );
