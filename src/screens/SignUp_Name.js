@@ -4,39 +4,40 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Keyboard, Touchabl
 export default function SignUpName({ navigation }) {
   const [nickname, setNickname] = useState('');
 
-  const totalSteps = 3; //회원가입 총 단계 
-  const currentStep = 3; //회원가입 현재 단계
-  const progressWidth = `${(currentStep / totalSteps) * 100}%`; //progressbar 진행 부분 길이
+  const totalSteps = 3; // 회원가입 총 단계
+  const currentStep = 3; // 현재 단계
+  const progressWidth = `${(currentStep / totalSteps) * 100}%`; // 진행바 길이
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <View style={styles.container}>
-        <View style={styles.progressBar}>
-          <View style={[styles.progressFill, {width: progressWidth}]}/>
-        </View>
+      <View style={{ flex: 1, backgroundColor: '#fff' }}>
+        <View style={styles.container}>
+          <View style={styles.progressBar}>
+            <View style={[styles.progressFill, { width: progressWidth }]} />
+          </View>
 
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>닉네임 입력</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="닉네임"
-            placeholderTextColor="#bbb"
-            value={nickname}
-            onChangeText={setNickname}
-            keyboardType="email-address"
-            autoCapitalize="none"
-          />
-        </View>
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>닉네임 입력</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="닉네임"
+              placeholderTextColor="#bbb"
+              value={nickname}
+              onChangeText={setNickname}
+              autoCapitalize="none"
+            />
+          </View>
 
-        <TouchableOpacity
-          style={[styles.button, !nickname && styles.buttonDisabled]}
-          disabled={!nickname}
-          onPress={() => {
-            navigation.navigate('SignUpFin', { nickname });
-          }}
-        >
-          <Text style={styles.buttonText}>계속</Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.button, !nickname && styles.buttonDisabled]}
+            disabled={!nickname}
+            onPress={() => {
+              navigation.navigate('SignUpFin', { nickname });
+            }}
+          >
+            <Text style={styles.buttonText}>계속</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </TouchableWithoutFeedback>
   );
@@ -46,11 +47,23 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f9f9f9',
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
     paddingHorizontal: 20,
-    paddingTop: 60,
+    paddingTop: 40,
+    marginTop: 8,
+
+    // iOS 그림자
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.5,
+    shadowRadius: 6,
+
+    // Android 그림자
+    elevation: 6,
   },
   progressBar: {
-    height: 4,
+    height: 3,
     backgroundColor: '#ddd',
     borderRadius: 2,
     overflow: 'hidden',

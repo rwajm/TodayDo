@@ -6,50 +6,51 @@ export default function SignUpPW({ navigation }) {
   const [passwordConfirm, setPasswordConfirm] = useState('');
   const isPasswordValid = password.length > 0 && password === passwordConfirm;
 
-  const totalSteps = 3; //회원가입 총 단계 
-  const currentStep = 2; //회원가입 현재 단계
-  const progressWidth = `${(currentStep / totalSteps) * 100}%`; //progressbar 진행 부분 길이
+  const totalSteps = 3; // 회원가입 총 단계
+  const currentStep = 2; // 현재 단계
+  const progressWidth = `${(currentStep / totalSteps) * 100}%`; // 진행바 길이
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <View style={styles.container}>
-        <View style={styles.progressBar}>
-          <View style={[styles.progressFill, {width: progressWidth}]}/>
-        </View>
+      <View style={{ flex: 1, backgroundColor: '#fff' }}>
+        <View style={styles.container}>
+          <View style={styles.progressBar}>
+            <View style={[styles.progressFill, { width: progressWidth }]} />
+          </View>
 
-        <View style={styles.inputContainer}>
-          <Text style={styles.label1}>비밀번호 입력</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="password"
-            placeholderTextColor="#bbb"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry={true}   // 비밀번호 입력 시 별표 표시
-            autoCapitalize="none"
-          />
-          <Text style={styles.label2}>비밀번호 확인</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="password"
-            placeholderTextColor="#bbb"
-            value={passwordConfirm}
-            onChangeText={setPasswordConfirm}
-            secureTextEntry={true}   // 비밀번호 입력 시 별표 표시
-            autoCapitalize="none"
-          />
-        </View>
+          <View style={styles.inputContainer}>
+            <Text style={styles.label1}>비밀번호 입력</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="password"
+              placeholderTextColor="#bbb"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry={true}
+              autoCapitalize="none"
+            />
+            <Text style={styles.label2}>비밀번호 확인</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="password"
+              placeholderTextColor="#bbb"
+              value={passwordConfirm}
+              onChangeText={setPasswordConfirm}
+              secureTextEntry={true}
+              autoCapitalize="none"
+            />
+          </View>
 
-        <TouchableOpacity
-          style={[styles.button, !isPasswordValid && styles.buttonDisabled]}
-          disabled={!isPasswordValid}
-          onPress={() => {
-            // 비밀번호 유효성 검사 추가 가능
-            navigation.navigate('SignUpName', { password });
-          }}
-        >
-          <Text style={styles.buttonText}>계속</Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.button, !isPasswordValid && styles.buttonDisabled]}
+            disabled={!isPasswordValid}
+            onPress={() => {
+              navigation.navigate('SignUpName', { password });
+            }}
+          >
+            <Text style={styles.buttonText}>계속</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </TouchableWithoutFeedback>
   );
@@ -59,11 +60,23 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f9f9f9',
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
     paddingHorizontal: 20,
-    paddingTop: 60,
+    paddingTop: 40,
+    marginTop: 8,
+
+    // iOS 그림자
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.5,
+    shadowRadius: 6,
+
+    // Android 그림자
+    elevation: 6,
   },
   progressBar: {
-    height: 4,
+    height: 3,
     backgroundColor: '#ddd',
     borderRadius: 2,
     overflow: 'hidden',

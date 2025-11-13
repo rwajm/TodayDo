@@ -18,7 +18,7 @@ export default function SignUpFin({ navigation, route }) {
       <TouchableOpacity
         style={styles.button}
         onPress={() => {
-          navigation.navigate('SignUpEmailCode', { email });
+          navigation.navigate('SignIn');
         }}
       >
         <Text style={styles.buttonText}>로그인 하러 가기</Text>
@@ -33,17 +33,18 @@ export const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     backgroundColor: '#fff',
+    paddingTop: 100,
   },
   text: {
     fontSize: 18,
     fontWeight: 'bold',
-    marginTop: 100,
+    marginTop: 80,
   },
   welcome: {
     textAlign: 'center',
     fontSize: 30,
     fontWeight: 'bold',
-    marginTop: 30,
+    marginTop: 90,
     marginBottom: 30,
   },
   nickname: {
