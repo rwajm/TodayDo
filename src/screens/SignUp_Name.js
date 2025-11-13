@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { NoScaleText, NoScaleTextInput } from '../components/NoScaleText';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Keyboard, TouchableWithoutFeedback } from 'react-native';
 
 export default function SignUpName({ navigation }) {
@@ -17,8 +18,8 @@ export default function SignUpName({ navigation }) {
           </View>
 
           <View style={styles.inputContainer}>
-            <Text style={styles.label}>닉네임 입력</Text>
-            <TextInput
+            <NoScaleText style={styles.label}>닉네임 입력</NoScaleText>
+            <NoScaleTextInput
               style={styles.input}
               placeholder="닉네임"
               placeholderTextColor="#bbb"
@@ -35,7 +36,7 @@ export default function SignUpName({ navigation }) {
               navigation.navigate('SignUpFin', { nickname });
             }}
           >
-            <Text style={styles.buttonText}>계속</Text>
+            <NoScaleText style={styles.buttonText}>계속</NoScaleText>
           </TouchableOpacity>
         </View>
       </View>

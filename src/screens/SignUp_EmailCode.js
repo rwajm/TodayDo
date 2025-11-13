@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { NoScaleText, NoScaleTextInput } from '../components/NoScaleText';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Keyboard, TouchableWithoutFeedback } from 'react-native';
 
 export default function SignUpEmailCode({ navigation, route }) {
@@ -18,9 +19,9 @@ export default function SignUpEmailCode({ navigation, route }) {
           </View>
 
           <View style={styles.inputContainer}>
-            <Text style={styles.emailText}>{email}로 인증코드를 전송했습니다.</Text>
-            <Text style={styles.label}>이메일 인증코드 입력</Text>
-            <TextInput
+            <NoScaleText style={styles.emailText}>{email}로 인증코드를 전송했습니다.</NoScaleText>
+            <NoScaleText style={styles.label}>이메일 인증코드 입력</NoScaleText>
+            <NoScaleTextInput
               style={styles.input}
               keyboardType="numeric"
               maxLength={5}
@@ -30,7 +31,7 @@ export default function SignUpEmailCode({ navigation, route }) {
             <TouchableOpacity onPress={() => {
               // 인증코드 재전송 기능 추가 예정
             }}>
-              <Text style={styles.resend}>재전송</Text>
+              <NoScaleText style={styles.resend}>재전송</NoScaleText>
             </TouchableOpacity>
           </View>
 
@@ -41,7 +42,7 @@ export default function SignUpEmailCode({ navigation, route }) {
               navigation.navigate('SignUpPW', { code });
             }}
           >
-            <Text style={styles.buttonText}>계속</Text>
+            <NoScaleText style={styles.buttonText}>계속</NoScaleText>
           </TouchableOpacity>
         </View>
       </View>

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { NoScaleText, NoScaleTextInput } from '../components/NoScaleText';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Keyboard, TouchableWithoutFeedback } from 'react-native';
 
 export default function SignUpEmail({ navigation }) {
@@ -17,8 +18,8 @@ export default function SignUpEmail({ navigation }) {
           </View>
 
           <View style={styles.inputContainer}>
-            <Text style={styles.label}>이메일 입력</Text>
-            <TextInput
+            <NoScaleText style={styles.label}>이메일 입력</NoScaleText>
+            <NoScaleTextInput
               style={styles.input}
               placeholder="e-mail"
               placeholderTextColor="#bbb"
@@ -36,7 +37,7 @@ export default function SignUpEmail({ navigation }) {
               navigation.navigate('SignUpEmailCode', { email });
             }}
           >
-            <Text style={styles.buttonText}>계속</Text>
+            <NoScaleText style={styles.buttonText}>계속</NoScaleText>
           </TouchableOpacity>
         </View>
       </View>

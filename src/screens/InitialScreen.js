@@ -1,12 +1,13 @@
 import React from 'react';
+import { NoScaleText, NoScaleTextInput } from '../components/NoScaleText';
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 
 export default function SignUpFin({ navigation}) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>일상을 내 손 안에</Text>
-      <Text style={styles.appname}>오늘Do</Text>
+      <NoScaleText style={styles.text}>일상을 내 손 안에</NoScaleText>
+      <NoScaleText style={styles.appname}>오늘Do</NoScaleText>
       <Image
         source={require('../../assets/logo.png')}
         style={styles.image}
@@ -18,7 +19,7 @@ export default function SignUpFin({ navigation}) {
           navigation.navigate('SignUpEmail');
         }}
       >
-        <Text style={styles.signupText}>계정 생성하기</Text>
+        <NoScaleText style={styles.signupText}>계정 생성하기</NoScaleText>
       </TouchableOpacity>
 
       <TouchableOpacity
@@ -27,7 +28,7 @@ export default function SignUpFin({ navigation}) {
           navigation.navigate('SignIn');
         }}
       >
-        <Text style={styles.signinText}>로그인</Text>
+        <NoScaleText style={styles.signinText}>로그인</NoScaleText>
       </TouchableOpacity>
     </View>
     

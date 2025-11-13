@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { NoScaleText, NoScaleTextInput } from '../components/NoScaleText';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Keyboard, TouchableWithoutFeedback } from 'react-native';
 
 export default function SignIn({ navigation }) {
@@ -11,8 +12,9 @@ export default function SignIn({ navigation }) {
         <View style={styles.container}>
 
           <View style={styles.emailinputContainer}>
-            <TextInput
+            <NoScaleTextInput
               style={styles.emailinput}
+              
               placeholder="e-mail"
               placeholderTextColor="#9a9a9aff"
               value={email}
@@ -23,7 +25,7 @@ export default function SignIn({ navigation }) {
           </View>
 
           <View style={styles.pwinputContainer}>
-            <TextInput
+            <NoScaleTextInput
               style={styles.pwinput}
               placeholder="password"
               placeholderTextColor="#9a9a9aff"
@@ -41,7 +43,7 @@ export default function SignIn({ navigation }) {
               navigation.navigate('Main');
             }}
           >
-            <Text style={styles.buttonText}>로그인</Text>
+            <NoScaleText style={styles.buttonText}>로그인</NoScaleText>
           </TouchableOpacity>
         </View>
       </View>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { NoScaleText, NoScaleTextInput } from '../components/NoScaleText';
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 
 export default function SignUpFin({ navigation, route }) {
@@ -6,10 +7,10 @@ export default function SignUpFin({ navigation, route }) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>회원가입 완료</Text>
-      <Text style={styles.welcome}>
-        <Text style={styles.nickname}>{nickname}</Text>님{'\n'}환영합니다!
-      </Text>
+      <NoScaleText style={styles.text}>회원가입 완료</NoScaleText>
+      <NoScaleText style={styles.welcome}>
+        <NoScaleText style={styles.nickname}>{nickname}</NoScaleText>님{'\n'}환영합니다!
+      </NoScaleText>
       <Image
         source={require('../../assets/logo.png')}
         style={styles.image}
@@ -21,7 +22,7 @@ export default function SignUpFin({ navigation, route }) {
           navigation.navigate('SignIn');
         }}
       >
-        <Text style={styles.buttonText}>로그인 하러 가기</Text>
+        <NoScaleText style={styles.buttonText}>로그인 하러 가기</NoScaleText>
       </TouchableOpacity>
     </View>
     

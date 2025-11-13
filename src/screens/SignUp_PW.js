@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { NoScaleText, NoScaleTextInput } from '../components/NoScaleText';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Keyboard, TouchableWithoutFeedback } from 'react-native';
 
 export default function SignUpPW({ navigation }) {
@@ -19,8 +20,8 @@ export default function SignUpPW({ navigation }) {
           </View>
 
           <View style={styles.inputContainer}>
-            <Text style={styles.label1}>비밀번호 입력</Text>
-            <TextInput
+            <NoScaleText style={styles.label1}>비밀번호 입력</NoScaleText>
+            <NoScaleTextInput
               style={styles.input}
               placeholder="password"
               placeholderTextColor="#bbb"
@@ -29,8 +30,8 @@ export default function SignUpPW({ navigation }) {
               secureTextEntry={true}
               autoCapitalize="none"
             />
-            <Text style={styles.label2}>비밀번호 확인</Text>
-            <TextInput
+            <NoScaleText style={styles.label2}>비밀번호 확인</NoScaleText>
+            <NoScaleTextInput
               style={styles.input}
               placeholder="password"
               placeholderTextColor="#bbb"
@@ -48,7 +49,7 @@ export default function SignUpPW({ navigation }) {
               navigation.navigate('SignUpName', { password });
             }}
           >
-            <Text style={styles.buttonText}>계속</Text>
+            <NoScaleText style={styles.buttonText}>계속</NoScaleText>
           </TouchableOpacity>
         </View>
       </View>
