@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { NoScaleText, NoScaleTextInput } from '../components/NoScaleText';
 import { View, Text, TouchableOpacity, StyleSheet, Image, ScrollView, Alert } from 'react-native';
 
 import Ionicons from '@expo/vector-icons/Ionicons'
@@ -14,12 +15,12 @@ function HomeHeader() {
         <Image/>
         <Ionicons name="person" size={24} color='gray' style={styles.profileImage}/>
         <View style={styles.profileText}>
-          <Text style={{fontSize: 10}}>처음 날개 단 병아리!</Text>
-          <Text>User님 환영합니다!</Text>
+          <NoScaleText style={{fontSize: 10}}>처음 날개 단 병아리!</NoScaleText>
+          <NoScaleText>User님 환영합니다!</NoScaleText>
 
           <View style={{flexDirection: 'row', alignItems: 'center'}}>
             <ProgressBar progress={0.5} width={200} style={{marginRight: 5}} />
-            <Text style={{fontSize: 9, color: "#8D8D8D"}}>150/300px</Text>
+            <NoScaleText style={{fontSize: 9, color: "#8D8D8D"}}>150/300px</NoScaleText>
           </View>
         </View>
       </View>
@@ -81,13 +82,13 @@ function StateList(){
       <View style={styles.statusArea}>
         <View style={[styles.statusBar, {width: widthStatus}]}>
           <View style={styles.circle}>
-            <Text style={{color: "black", padding: 5, fontSize: 10}}>{current}/{total}</Text>
+            <NoScaleText style={{color: "black", padding: 5, fontSize: 10}}>{current}/{total}</NoScaleText>
           </View>
         </View>
       </View>
       <View style={{alignItems: 'flex-end', marginHorizontal: 16}}>
         <TouchableOpacity style={{margin: 5, flexDirection: 'row', alignItems: 'center'}}>
-          <Text style={{color: "#3A9CFF", fontSize: 12}}>통계 보러가기</Text>
+          <NoScaleText style={{color: "#3A9CFF", fontSize: 12}}>통계 보러가기</NoScaleText>
           <Ionicons name="arrow-forward" size={10} color="#3A9CFF"/>
         </TouchableOpacity>
       </View>
@@ -99,7 +100,7 @@ function TodayList(){
   return(
     <View style={styles.card}>
       <View>
-        <Text style={{fontWeight: "bold"}}>Today</Text>
+        <NoScaleText style={{fontWeight: "bold"}}>Today</NoScaleText>
 
       </View>
     </View>
