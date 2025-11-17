@@ -240,7 +240,8 @@ export default function RoutineScreen(){
           data={filterSortedRoutine}
           keyExtractor={item => item.id}
 
-          ListHeaderComponent={<RoutineHeader 
+          ListHeaderComponent={
+            <RoutineHeader 
               isDelete={isDelete}
               selectCount={selectedId.size}
               onCancelDelete={cancleDelete}
