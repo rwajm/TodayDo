@@ -18,6 +18,7 @@ import ForgotPWFin from './src/screens/ForgotPW_Fin';
 import AccountManagement from './src/screens/AccountManagement';
 import ChangePW from './src/screens/ChangePW';
 import Social from './src/screens/Social';
+import NotificationScreen from './src/screens/NotificationScreen';
 import BottomNavigator from './src/navigation/BottomNavigator';
 
 const Stack = createNativeStackNavigator();
@@ -158,6 +159,16 @@ export default function App() {
           component={Social}
           options={({ navigation }) => ({
             title: '친구',
+            headerLeft: () => <BackButton onPress={() => navigation.goBack()} />,
+            headerShown: true,
+            headerShadowVisible: false,
+          })}
+        />
+        <Stack.Screen
+          name="Notification"
+          component={NotificationScreen}
+          options={({ navigation }) => ({
+            title: '알림',
             headerLeft: () => <BackButton onPress={() => navigation.goBack()} />,
             headerShown: true,
             headerShadowVisible: false,
