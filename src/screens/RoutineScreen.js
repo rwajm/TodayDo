@@ -1,10 +1,12 @@
 import React, { useState, useMemo } from 'react';
 import { NoScaleText, NoScaleTextInput } from '../components/NoScaleText';
-import { SafeAreaView, View, Text, TouchableOpacity, StyleSheet, FlatList, ScrollView, Alert, Modal } from 'react-native';
+import { SafeAreaView, View, Text, TouchableOpacity, StyleSheet, FlatList, ScrollView, Alert, Modal, KeyboardAvoidingView, Platform } from 'react-native';
 
 import Ionicons from '@expo/vector-icons/Ionicons'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
-import Feather from '@expo/vector-icons/Feather'
+import MaterialIcons from '@expo/vector-icons/MaterialIcons'
+import { Calendar } from 'react-native-calendars';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
 
 const DATA = [
   {id: '1', title: '루틴 1', date: '2025.11.11', completed: false, important: false, remind: true, repeated: true},
@@ -93,7 +95,7 @@ function RoutineHeader({
           </TouchableOpacity>
           <NoScaleText style={styles.monthText}>{monthString}</NoScaleText>
           <TouchableOpacity onPress={onNextMonth}>
-            <Ionicons name="chevron-forward" size={24} color="black0" style={{marginLeft: 20}} />
+            <Ionicons name="chevron-forward" size={24} color="black" style={{marginLeft: 20}} />
           </TouchableOpacity>
         </View>
 
@@ -125,6 +127,10 @@ export default function RoutineScreen(){
   const [sortVisible, setSortVisible] = useState(false);
   const [sortOrder, setSortOrder] = useState('최신등록순');
   const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [isEditorVisible, setEditorVisible] = useState(false);
+  const [editItem, setEditItem] = useState(null);
+  const [isCalendarVisible, setCalendarVisible] = useState(false);
+  const [isTimePickerVisible, setTimePickerVisible] = useState(false);
 
   const routineComplete = (id) => {
     setRoutine(prevRoutine =>
@@ -232,6 +238,61 @@ export default function RoutineScreen(){
     setCurrentMonth(prev => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
   };
 
+  const handleCloseEditor = () => {
+    setEditorVisible(false);
+    setEditItem(null);
+  }
+
+  const handleSaveRoutine = () => {
+    handleCloseEditor();
+  }
+
+  const handleDateSelect = (day) => {
+    if (editItem) {
+      setEditItem(prev => ({
+        ...prev,
+        date: day.dateString.replace(/-/g, '.')
+      }));
+    }
+    setCalendarVisible(false);
+    setTimePickerVisible(true);
+  }
+
+  const handleCheckTime = (selectedTime) => {
+    const hour = String(selectedTime.getHours()).padStart(2, '0');
+    const minute = String(selectedTime.getMinutes()).padStart(2, '0');
+    const timeString = `${hour}:${minute}`;
+
+    if(editItem){
+      setEditItem(prev => ({
+        ...prev,
+        date: prev.date.split(' ')[0] + `${timeString}`
+      }));
+    }
+    setTimePickerVisible(false);
+  }
+
+  const handleCancelTimePicker = () => {
+    setTimePickerVisible(false);
+  }
+
+  const handleShowEditor = () => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const date = String(today.getDate()).padStart(2, '0');
+    const today_date = `${year}.${month}.${date}`;
+
+    const newRoutine = {
+      id: String(Date.now()), 
+      title: '',
+      date: today_date,
+      completed: false, important: false, remind: false, repeated: false
+    };
+    setEditItem(newRoutine);
+    setEditorVisible(true);
+  };
+
   return(
     <SafeAreaView  style={styles.screen}>
       <View style={styles.container}>
@@ -267,6 +328,14 @@ export default function RoutineScreen(){
               onLongPress={() => itemLongPress(item.id)}
             />
           )}
+
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <NoScaleText style={styles.emptyText}>
+                아직 루틴이 없습니다.{'\n'}
+                아래 +버튼을 눌러 추가해보세요!</NoScaleText>
+            </View>
+          }
         />
       </View>
 
@@ -284,8 +353,90 @@ export default function RoutineScreen(){
         </TouchableOpacity>
       </Modal>
 
+      <Modal
+        statusBarTranslucent
+        transparent={true}
+        visible={isCalendarVisible}
+        animationType="fade"
+        onRequestClose={() => setCalendarVisible(false)} >
+
+        <View style={styles.modalBackdrop}>
+          <View style={styles.calendarModalContent}>
+            <Calendar
+              onDayPress={handleDateSelect}
+              current={editItem?.date.split(' ')[0].replace(/\./g, '-')} />
+          </View>
+        </View>
+      </Modal>
+
+      <Modal 
+          transparent={true} 
+          visible={isTimePickerVisible} 
+          animationType="fade"
+          onRequestClose={() => setTimePickerVisible(false)}
+        >
+            <View style={styles.modalContent}>
+              <DateTimePickerModal
+                isVisible={isTimePickerVisible}
+                mode='time'
+                is24Hour={true}
+                onConfirm={handleCheckTime}
+                onCancel={handleCancelTimePicker}
+              />
+            </View>
+        </Modal>
+
+      <Modal transparent={true} animationType='fade' visible={isEditorVisible} onRequestClose={handleCloseEditor}
+        statusBarTranslucent>
+          <KeyboardAvoidingView
+            style={styles.editorBackdrop} >
+
+          <TouchableOpacity 
+            style={{flex: 1}} 
+            activeOpacity={1} 
+            onPress={handleCloseEditor} 
+          />
+          
+            <View style={styles.editorContent}>
+              {editItem && (
+                <>
+                  <NoScaleTextInput
+                    value={editItem.title}
+                    onChangeText={(text) => setEditItem(prev => ({...prev, title: text}))}
+                    placeholder="새 루틴"
+                    style={styles.editorInput}
+                    autoFocus={true}
+                  />
+                  
+                  <View style={styles.editorButtonRow}>
+                    <TouchableOpacity onPress={() => alert('태그')} style={styles.editorBtn}>
+                      <MaterialIcons name="label-outline" size={15} color="gray"/>
+                      <NoScaleText style={styles.editorText}>태그</NoScaleText>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => setCalendarVisible(true)} style={styles.editorBtn}>
+                      <Ionicons name="calendar-clear-outline" size={15} color="gray"/>
+                      <NoScaleText style={styles.editorText}>날짜</NoScaleText>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => alert('알림')} style={styles.editorBtn}>
+                      <Ionicons name="notifications-outline" size={15} color="gray"/>
+                      <NoScaleText style={styles.editorText}>알림</NoScaleText>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => alert('반복')} style={styles.editorBtn}>
+                      <Ionicons name="repeat-outline" size={15} color="gray"/>
+                      <NoScaleText style={styles.editorText}>반복</NoScaleText>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={handleSaveRoutine}>
+                      <Ionicons name="checkmark-circle" size={35} color="#CDCDCD"/>
+                    </TouchableOpacity>
+                  </View>
+                </>
+              )}
+          </View>
+          </KeyboardAvoidingView>
+      </Modal>
+
       {!isDelete && (
-        <TouchableOpacity onPress={() => alert('새 Routine 추가')} style={styles.fab}>
+        <TouchableOpacity onPress={handleShowEditor} style={styles.fab}>
           <Ionicons name="add" size={40} color="white"/>
         </TouchableOpacity>
       )}
@@ -451,5 +602,62 @@ const styles = StyleSheet.create({
   },
   modalButton: {
     paddingVertical: 12,
+  },
+  emptyContainer: {
+    padding: 32,
+    marginTop: 100,
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  emptyText: {
+    fontSize: 18,
+    color: 'gray',
+    textAlign: 'center',
+  },
+  editorBackdrop: {
+    flex: 1,
+    justifyContent: 'flex-end', 
+    backgroundColor: 'rgba(0,0,0,0.4)', 
+  },
+  editorContent: {
+    backgroundColor: 'white',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 20,
+    elevation: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -3 },
+    shadowOpacity: 0.1,
+  },
+  editorInput: {
+    fontSize: 15,
+    padding: 10,
+    backgroundColor: '#E7E7E7',
+    borderRadius: 30,
+  },
+  editorButtonRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingVertical: 15,
+    alignItems: 'center',
+  },
+  editorBtn: {
+    backgroundColor: '#E7E7E7',
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    borderRadius: 30,
+    padding: 10,
+    alignItems: 'center',
+  },
+  editorText: {
+    marginLeft: 5,
+    textAlign: 'center',
+    fontSize: 13
+  },
+  calendarModalContent: {
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 10,
+    margin: 20,
   }
 });
