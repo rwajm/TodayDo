@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { NoScaleText, NoScaleTextInput } from '../components/NoScaleText';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Keyboard, TouchableWithoutFeedback } from 'react-native';
 
-export default function SignIn({ navigation }) {
+export default function AccountManagement({ navigation }) {
     const [email, setEmail] = useState('');
     const [pw, setpw] = useState('');
 
@@ -10,8 +10,8 @@ export default function SignIn({ navigation }) {
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <View style={{ flex: 1, backgroundColor: '#fff' }}>
         <View style={styles.container}>
-
           <View style={styles.emailinputContainer}>
+            <NoScaleText style={styles.emailtext}>이메일</NoScaleText>
             <NoScaleTextInput
               style={styles.emailinput}
               
@@ -25,6 +25,7 @@ export default function SignIn({ navigation }) {
           </View>
 
           <View style={styles.pwinputContainer}>
+            <NoScaleText style={styles.pwtext}>비밀번호</NoScaleText>
             <NoScaleTextInput
               style={styles.pwinput}
               placeholder="password"
@@ -36,29 +37,14 @@ export default function SignIn({ navigation }) {
             />
           </View>
 
-          <TouchableOpacity
-            style={[styles.button, (!email || !pw) && styles.buttonDisabled]}
-            disabled={!email || !pw}
-            onPress={() => {
-              navigation.navigate('Main');
-            }}
-          >
-            <NoScaleText style={styles.buttonText}>로그인</NoScaleText>
-          </TouchableOpacity>
-
-          <View style={styles.dividerContainer}>
-            <View style={styles.line} />
-             <NoScaleText style={styles.dividerText}>또는</NoScaleText>
-            <View style={styles.line} />
-          </View>
-
           <TouchableOpacity 
             onPress={() => {
-              navigation.navigate('ForgotPWEmail', { email }, {pw});
+              navigation.navigate('ChangePW');
             }}
           >
-            <NoScaleText style={styles.findpwtext}>비밀번호를 잊어버리셨나요?</NoScaleText>
+            <NoScaleText style={styles.changepwtext}>비밀번호 변경</NoScaleText>
           </TouchableOpacity>
+          <NoScaleText style={styles.warning}>개인정보는 절대 타인에게 보여주지 마세요.</NoScaleText>
         </View>
       </View>
     </TouchableWithoutFeedback>
@@ -89,6 +75,11 @@ export const styles = StyleSheet.create({
     marginTop: 30,
     paddingHorizontal: 15,
   },
+  emailtext: {
+    marginBottom: 15,
+    marginLeft: 20,
+    fontWeight: 600,
+  },
   emailinput: {
     borderRadius: 60,
     height: 45,
@@ -102,6 +93,11 @@ export const styles = StyleSheet.create({
     marginTop: 5,
     paddingHorizontal: 15,
   },
+  pwtext: {
+    marginBottom: 15,
+    marginLeft: 20,
+    fontWeight: 600,
+  },
   pwinput: {
     borderRadius: 60,
     height: 45,
@@ -110,44 +106,14 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 20,
     backgroundColor: '#edededff',
   },
-  button: {
-    backgroundColor: '#3A9CFF',
-    paddingVertical: 12,
-    borderRadius: 60,
-    alignItems: 'center',
-    width: 90,
-    alignSelf: 'center',
-    marginTop: 20,
-  },
-  buttonDisabled: {
-    backgroundColor: '#ccc',
-  },
-  buttonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-  },
-  dividerContainer: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  marginTop: 30,
-  marginBottom: 10,
-  alignSelf: 'center',
-  },
-  line: {
-    width: 140,
-    height: 1,
-    backgroundColor: '#ddddddff',
-    borderRadius: 1,
-  },
-
-  dividerText: {
-    marginHorizontal: 10,
-    fontSize: 14,
-    color: '#777',
-  },
-  findpwtext: {
+  changepwtext: {
     color: '#3A9CFF',
+    alignSelf: 'flex-end',
+    marginRight: 30,
+  },
+  warning: {
+    color: '#6D6D6D',
     alignSelf: 'center',
-    marginTop: 30,
+    marginTop: 150,
   },
 });

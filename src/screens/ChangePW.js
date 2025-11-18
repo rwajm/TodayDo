@@ -2,9 +2,8 @@ import React, { useState } from 'react';
 import { NoScaleText, NoScaleTextInput } from '../components/NoScaleText';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Keyboard, TouchableWithoutFeedback } from 'react-native';
 
-export default function ForgotPWEmailCode({ navigation, route }) {
-  const { email } = route.params;
-  const [code, setCode] = useState('');
+export default function ChangePW({ navigation }) {
+  const [pw, setpw] = useState('');
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
@@ -12,28 +11,22 @@ export default function ForgotPWEmailCode({ navigation, route }) {
         <View style={styles.container}>
 
           <View style={styles.inputContainer}>
-            <NoScaleText style={styles.emailText}>{email}로 인증코드를 전송했습니다.</NoScaleText>
-            <NoScaleText style={styles.label}>이메일 인증코드 입력</NoScaleText>
+            <NoScaleText style={styles.label}>기존 비밀번호 입력</NoScaleText>
             <NoScaleTextInput
               style={styles.input}
-              keyboardType="numeric"
-              maxLength={5}
-              onChangeText={setCode}
-              value={code}
+              placeholder="password"
+              placeholderTextColor="#bbb"
+              value={pw}
+              onChangeText={setpw}
+              autoCapitalize="none"
             />
-            <TouchableOpacity 
-              onPress={() => {
-              // 인증코드 재전송 기능 추가 예정
-              }}>
-              <NoScaleText style={styles.resend}>재전송</NoScaleText>
-            </TouchableOpacity>
           </View>
 
           <TouchableOpacity
-            style={[styles.button, !code && styles.buttonDisabled]}
-            disabled={!code}
+            style={[styles.button, !pw && styles.buttonDisabled]}
+            disabled={!pw}
             onPress={() => {
-              navigation.navigate('ForgotPWNewPW', { code });
+              navigation.navigate('ForgotPWNewPW', { pw });
             }}
           >
             <NoScaleText style={styles.buttonText}>계속</NoScaleText>
@@ -44,7 +37,7 @@ export default function ForgotPWEmailCode({ navigation, route }) {
   );
 }
 
-const styles = StyleSheet.create({
+export const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f9f9f9',
@@ -54,23 +47,19 @@ const styles = StyleSheet.create({
     paddingTop: 40,
     marginTop: 8,
 
-    // iOS 그림자
+    //iOS 그림자 속성
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.5,
     shadowRadius: 6,
 
-    // Android 그림자
+    //Android 그림자 속성
     elevation: 6,
   },
   inputContainer: {
     marginBottom: 20,
-    marginTop: 5,
+    marginTop: 30,
     paddingHorizontal: 15,
-  },
-  emailText: {
-    marginBottom: 8,
-    color: '#8f8f8fff',
   },
   label: {
     fontSize: 18,
@@ -84,11 +73,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#333',
   },
-  resend: {
-    textAlign: 'right',
-    color: '#4a90e2',
-    marginTop: 10,
-  },
   button: {
     backgroundColor: '#3A9CFF',
     paddingVertical: 12,
@@ -96,7 +80,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: 80,
     alignSelf: 'center',
-    marginTop: 25,
+    marginTop: 50,
   },
   buttonDisabled: {
     backgroundColor: '#ccc',

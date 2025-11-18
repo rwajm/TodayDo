@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 import BackButton from './src/components/BackButton';
 import InitialScreen from './src/screens/InitialScreen';
@@ -12,9 +13,15 @@ import SignUpFin from './src/screens/SignUp_Fin';
 import SignIn from './src/screens/SignIn';
 import ForgotPWEmail from './src/screens/ForgotPW_Email';
 import ForgotPWEmailCode from './src/screens/ForgotPW_EmailCode';
+import ForgotPWNewPW from './src/screens/ForgotPW_NewPW';
+import ForgotPWFin from './src/screens/ForgotPW_Fin';
+import AccountManagement from './src/screens/AccountManagement';
+import ChangePW from './src/screens/ChangePW';
+import Social from './src/screens/Social';
 import BottomNavigator from './src/navigation/BottomNavigator';
 
 const Stack = createNativeStackNavigator();
+const Tab = createBottomTabNavigator();
 
 export default function App() {
   return (
@@ -101,10 +108,60 @@ export default function App() {
           })}
         />
         <Stack.Screen
+          name="ForgotPWNewPW"
+          component={ForgotPWNewPW}
+          options={({ navigation }) => ({
+            title: '계정복구',
+            headerLeft: () => <BackButton onPress={() => navigation.goBack()} />,
+            headerShown: true,
+            headerShadowVisible: false,
+          })}
+        />
+        <Stack.Screen
+          name="ForgotPWFin"
+          component={ForgotPWFin}
+          options={({ navigation }) => ({
+            title: '계정복구',
+            headerLeft: () => <BackButton onPress={() => navigation.goBack()} />,
+            headerShown: true,
+            headerShadowVisible: false,
+          })}
+        />
+        <Stack.Screen
+          name="AccountManagement"
+          component={AccountManagement}
+          options={({ navigation }) => ({
+            title: '계정관리',
+            headerLeft: () => <BackButton onPress={() => navigation.goBack()} />,
+            headerShown: true,
+            headerShadowVisible: false,
+          })}
+        />
+        <Stack.Screen
           name="Main"
           component={BottomNavigator}
           options={{gestureEnabled: false,headerShown: false}}
           
+        />
+        <Stack.Screen
+          name="ChangePW"
+          component={ChangePW}
+          options={({ navigation }) => ({
+            title: '계정복구',
+            headerLeft: () => <BackButton onPress={() => navigation.goBack()} />,
+            headerShown: true,
+            headerShadowVisible: false,
+          })}
+        />
+        <Stack.Screen
+          name="Social"
+          component={Social}
+          options={({ navigation }) => ({
+            title: '친구',
+            headerLeft: () => <BackButton onPress={() => navigation.goBack()} />,
+            headerShown: true,
+            headerShadowVisible: false,
+          })}
         />
       </Stack.Navigator>
     </NavigationContainer>

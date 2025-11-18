@@ -2,38 +2,46 @@ import React, { useState } from 'react';
 import { NoScaleText, NoScaleTextInput } from '../components/NoScaleText';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Keyboard, TouchableWithoutFeedback } from 'react-native';
 
-export default function ForgotPWEmailCode({ navigation, route }) {
-  const { email } = route.params;
-  const [code, setCode] = useState('');
+export default function ForgotPWNewPW({ navigation }) {
+  const [password, setPassword] = useState('');
+  const [passwordConfirm, setPasswordConfirm] = useState('');
+  const isPasswordValid = password.length > 0 && password === passwordConfirm;
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <View style={{ flex: 1, backgroundColor: '#fff' }}>
         <View style={styles.container}>
 
+          <NoScaleText style={styles.title}>비밀번호 변경</NoScaleText>
+
           <View style={styles.inputContainer}>
-            <NoScaleText style={styles.emailText}>{email}로 인증코드를 전송했습니다.</NoScaleText>
-            <NoScaleText style={styles.label}>이메일 인증코드 입력</NoScaleText>
+            <NoScaleText style={styles.label1}>새 비밀번호 입력</NoScaleText>
             <NoScaleTextInput
               style={styles.input}
-              keyboardType="numeric"
-              maxLength={5}
-              onChangeText={setCode}
-              value={code}
+              placeholder="password"
+              placeholderTextColor="#bbb"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry={true}
+              autoCapitalize="none"
             />
-            <TouchableOpacity 
-              onPress={() => {
-              // 인증코드 재전송 기능 추가 예정
-              }}>
-              <NoScaleText style={styles.resend}>재전송</NoScaleText>
-            </TouchableOpacity>
+            <NoScaleText style={styles.label2}>비밀번호 확인</NoScaleText>
+            <NoScaleTextInput
+              style={styles.input}
+              placeholder="password"
+              placeholderTextColor="#bbb"
+              value={passwordConfirm}
+              onChangeText={setPasswordConfirm}
+              secureTextEntry={true}
+              autoCapitalize="none"
+            />
           </View>
 
           <TouchableOpacity
-            style={[styles.button, !code && styles.buttonDisabled]}
-            disabled={!code}
+            style={[styles.button, !isPasswordValid && styles.buttonDisabled]}
+            disabled={!isPasswordValid}
             onPress={() => {
-              navigation.navigate('ForgotPWNewPW', { code });
+              navigation.navigate('ForgotPWFin', { password });
             }}
           >
             <NoScaleText style={styles.buttonText}>계속</NoScaleText>
@@ -63,18 +71,26 @@ const styles = StyleSheet.create({
     // Android 그림자
     elevation: 6,
   },
+  title: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    alignSelf: 'center',
+    marginBottom: 20,
+  },
   inputContainer: {
     marginBottom: 20,
-    marginTop: 5,
+    marginTop: 30,
     paddingHorizontal: 15,
   },
-  emailText: {
-    marginBottom: 8,
-    color: '#8f8f8fff',
-  },
-  label: {
+  label1: {
     fontSize: 18,
     fontWeight: 'bold',
+    marginBottom: 20,
+  },
+  label2: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginTop: 40,
     marginBottom: 20,
   },
   input: {
@@ -84,11 +100,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#333',
   },
-  resend: {
-    textAlign: 'right',
-    color: '#4a90e2',
-    marginTop: 10,
-  },
   button: {
     backgroundColor: '#3A9CFF',
     paddingVertical: 12,
@@ -96,7 +107,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: 80,
     alignSelf: 'center',
-    marginTop: 25,
+    marginTop: 50,
   },
   buttonDisabled: {
     backgroundColor: '#ccc',
