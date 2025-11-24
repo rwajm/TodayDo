@@ -21,6 +21,7 @@ export default function BottomTabNavigator(){
   return(
     <Tab.Navigator
       initialRouteName='Home'
+      backBehavior="initialRoute"
       screenOptions={({route}) => ({
 
         tabBarShowLabel: false,

@@ -2,8 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Animated, FlatList, Text, View, StyleSheet, TouchableOpacity } from 'react-native';
 
 const WheelPicker = ({ items, onItemChange, itemHeight, initValue }) => {
-  const scrollY = useRef(new Animated.Value(0)).current;
   const initValueIndex = initValue ? items.indexOf(initValue) : 0; // 기본값: 0
+  const scrollY = useRef(new Animated.Value(initValueIndex * itemHeight)).current;
   const [selectedIndex, setSelectedIndex] = useState(
     initValueIndex >= 0 ? items[initValueIndex] : items[0]
   );
@@ -28,6 +28,12 @@ const WheelPicker = ({ items, onItemChange, itemHeight, initValue }) => {
     const scale = scrollY.interpolate({
       inputRange,
       outputRange: [0.8, 1, 0.8],
+      extrapolate: 'clamp',
+    });
+    const opacity = scrollY.interpolate({
+      inputRange,
+      outputRange: [0.3, 1, 0.3], 
+      extrapolate: 'clamp',
     });
 
     return (
@@ -35,14 +41,11 @@ const WheelPicker = ({ items, onItemChange, itemHeight, initValue }) => {
         <Animated.View
           style={[
             styles.itemWrapper,
-            { height: itemHeight, transform: [{ scale }] },
+            { height: itemHeight, transform: [{ scale }], opacity: opacity },
           ]}
         >
           <Text
-            style={[
-              styles.itemText,
-              { color: selectedIndex === item ? '#000000' : '#888888' },
-            ]}
+            style={styles.itemText}
           >
             {item}
           </Text>
@@ -51,7 +54,6 @@ const WheelPicker = ({ items, onItemChange, itemHeight, initValue }) => {
     );
   };
 
-  // 앞뒤에 빈 아이템을 추가하여 무한 스크롤처럼 보이게 함
   const modifiedItems = ['', ...items, ''];
 
   const momentumScrollEnd = (event) => {
@@ -66,7 +68,7 @@ const WheelPicker = ({ items, onItemChange, itemHeight, initValue }) => {
       setSelectedIndex(items[0]);
     }
     else if(index >= modifiedItems.length - 1){
-      setSlectedIndex(items[items.length-1]);
+      setSelectedIndex(items[items.length-1]);
     }
   };
 
@@ -83,7 +85,7 @@ const WheelPicker = ({ items, onItemChange, itemHeight, initValue }) => {
         showsVerticalScrollIndicator={false}
         snapToInterval={itemHeight} // 항목 높이만큼 스냅
         onMomentumScrollEnd={momentumScrollEnd}
-        scrollEventThrottle={20}
+        scrollEventThrottle={16}
         onScroll={Animated.event(
           [{ nativeEvent: { contentOffset: { y: scrollY } } }],
           { useNativeDriver: true }
