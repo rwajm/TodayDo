@@ -1,6 +1,6 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { NoScaleText, NoScaleTextInput } from '../components/NoScaleText';
-import { SafeAreaView, View, TouchableOpacity, StyleSheet, FlatList, ScrollView, Alert, Modal, KeyboardAvoidingView, Platform, Keyboard, BackHandler, Switch, PanResponder, Animated } from 'react-native';
+import { SafeAreaView, View, TouchableOpacity, StyleSheet, FlatList, ScrollView, Alert, Modal, KeyboardAvoidingView, Platform, Keyboard, BackHandler, Switch, TouchableWithoutFeedback } from 'react-native';
 
 import Ionicons from '@expo/vector-icons/Ionicons'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
@@ -32,11 +32,17 @@ const DATA = [
 const TAGS_DATA = [
   { id: 't1', name: '운동', selected: false, subTags: [ {id: 's1', name: '헬스', selected: false} ] },
   { id: 't2', name: '공부', selected: false, subTags: [] },
+  { id: 't3', name: '청소', selected: false, subTags: [] },
+  { id: 't4', name: '빨래', selected: false, subTags: [] },
+  { id: 't5', name: '서점', selected: false, subTags: [] },
+  { id: 't6', name: '알바', selected: false, subTags: [] },
 ];
 
+// 개별 루틴
 function RoutineItem({item, isDelete, selectedIds, onComplete, onImportant, onPress, onLongPress, onToggleSubStep, onSelect, onLongPressSubStep}){
   const isMainSelected = selectedIds.has(item.id);
   
+  // 삭제 모드일 때는 선택 박스, 일반 모드일 때는 완료 체크 박스 표시
   const checkboxIcon = isDelete ? (isMainSelected ? 'checkbox':'square-outline')
     : (item.completed? 'checkmark-circle':'radio-button-off');
   const checkboxColor = isDelete ? (isMainSelected ? '#E50000':'gray')
@@ -45,6 +51,7 @@ function RoutineItem({item, isDelete, selectedIds, onComplete, onImportant, onPr
   const completedColor = item.completed ? 'gray' : '#3A9CFF';
   const starColor = item.completed ? 'gray' : (item.important ? '#3A9CFF' : 'gray');
 
+  // 날짜 표시(오늘 날짜는 '오늘'로 표시)
   const getDisplayDate = () => {
     if (!item.date) return '';
 
@@ -131,68 +138,124 @@ function RoutineItem({item, isDelete, selectedIds, onComplete, onImportant, onPr
   )
 }
 
+// 헤더 컴포넌트
 function RoutineHeader({
-  isDelete, selectCount, onCancelDelete, onDeleteSelected, remainderCount, onShowFilter, onShowSort, sortOrderText, currentMonth, onPrevMonth, onNextMonth, isFilterActive}){
-    if(isDelete){
-      return(
-        <View style={styles.headerRow}>
-          <TouchableOpacity onPress={onCancelDelete}>
-            <NoScaleText style={styles.headerButton}>취소</NoScaleText>
-          </TouchableOpacity>
-          <NoScaleText style={styles.headerTitle}>{selectCount}개 선택됨</NoScaleText>
-          <TouchableOpacity onPress={onDeleteSelected}>
-            <NoScaleText style={[styles.headerButton, {color: 'red'}]}>삭제</NoScaleText>
-          </TouchableOpacity>
-        </View>
-      );
-    }
-
-    const year = currentMonth.getFullYear();
-    const month = String(currentMonth.getMonth()+1).padStart(2, '0');
-    const monthString = `${year}.${month}`;
-
+  isDelete, selectCount, onCancelDelete, onDeleteSelected, remainderCount,
+  filterVisible, setFilterVisible, activeFilter,
+  sortVisible, setSortVisible, onSelectSort, sortOrder,
+  currentMonth, onPrevMonth, onNextMonth
+}){
+  // 삭제 모드일 때
+  if(isDelete){
     return(
-      <View>
-        <View style={styles.monthRow}>
-          <TouchableOpacity onPress={onPrevMonth}>
-            <Ionicons name="chevron-back" size={24} color="black" style={{marginRight: 20}} />
-          </TouchableOpacity>
-          <NoScaleText style={styles.monthText}>{monthString}</NoScaleText>
-          <TouchableOpacity onPress={onNextMonth}>
-            <Ionicons name="chevron-forward" size={24} color="black" style={{marginLeft: 20}} />
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.statusBox}>
-          <NoScaleText style={styles.statusTitle}>남은 루틴</NoScaleText>
-          <NoScaleText style={styles.statusCount}>{remainderCount}개</NoScaleText>
-          <NoScaleText style={styles.statusSubText}>잘 하고 있어요!</NoScaleText>
-        </View>
-
-        <View style={styles.separator} />
-
-        <View style={styles.controlsRow}>
-          <TouchableOpacity
-            onPress={onShowFilter}
-            style={[
-              styles.filterButton, 
-              isFilterActive && { backgroundColor: '#3A9CFF' }
-            ]}
-          >
-            <Ionicons name="filter" size={18} color={isFilterActive ? "white" : "gray"}/>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={onShowSort} style={styles.sortButton}>
-            <NoScaleText style={styles.sortText}>{sortOrderText}</NoScaleText>
-          </TouchableOpacity>
-        </View>
+      <View style={styles.headerRow}>
+        <TouchableOpacity onPress={onCancelDelete}>
+          <NoScaleText style={styles.headerButton}>취소</NoScaleText>
+        </TouchableOpacity>
+        <NoScaleText style={styles.headerTitle}>{selectCount}개 선택됨</NoScaleText>
+        <TouchableOpacity onPress={onDeleteSelected}>
+          <NoScaleText style={[styles.headerButton, {color: 'red'}]}>삭제</NoScaleText>
+        </TouchableOpacity>
       </View>
-    )
+    );
   }
 
+  const year = currentMonth.getFullYear();
+  const month = String(currentMonth.getMonth()+1).padStart(2, '0');
+  const monthString = `${year}.${month}`;
+
+  // 일반 모드일 때
+  return(
+    <View>
+      <View style={styles.monthRow}>
+        <TouchableOpacity onPress={onPrevMonth}>
+          <Ionicons name="chevron-back" size={24} color="black" style={{marginRight: 20}} />
+        </TouchableOpacity>
+        <NoScaleText style={styles.monthText}>{monthString}</NoScaleText>
+        <TouchableOpacity onPress={onNextMonth}>
+          <Ionicons name="chevron-forward" size={24} color="black" style={{marginLeft: 20}} />
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.statusBox}>
+        <NoScaleText style={styles.statusTitle}>남은 루틴</NoScaleText>
+        <NoScaleText style={styles.statusCount}>{remainderCount}개</NoScaleText>
+        <NoScaleText style={styles.statusSubText}>잘 하고 있어요!</NoScaleText>
+      </View>
+
+      <View style={styles.separator} />
+
+      <View style={[styles.controlsRow, { zIndex: 2000 }]}>
+        {/* 필터 */}
+        <View style={styles.filterContainer}>
+          <TouchableOpacity
+            onPress={() => setFilterVisible(!filterVisible)}
+            activeOpacity={0.8}
+            style={[
+              styles.filterButton, 
+              (activeFilter || filterVisible) ? { backgroundColor: '#3A9CFF' } : { backgroundColor: '#E0E0E0' }
+            ]}
+          >
+            <Ionicons name="filter" size={20} color={(activeFilter || filterVisible) ? "white" : "#555"}/>
+          </TouchableOpacity>
+        </View>
+
+        {/* 정렬 */}
+        <View style={styles.sortContainer}>
+          <TouchableOpacity
+            style={[styles.sortButton]} 
+            onPress={() => setSortVisible(!sortVisible)}
+            activeOpacity={1}
+          >
+            <NoScaleText style={styles.sortText}>{sortOrder}</NoScaleText>
+            <Ionicons name={sortVisible ? "chevron-up" : "chevron-down"} size={12} color="#555" style={{marginLeft: 4}}/>
+          </TouchableOpacity>
+
+          {sortVisible && (
+            <View style={styles.dropdownFull}>
+              <TouchableOpacity 
+                style={styles.dropdownHeader} 
+                onPress={() => setSortVisible(false)}
+              >
+                <NoScaleText style={styles.sortText}>{sortOrder}</NoScaleText>
+                <Ionicons name="chevron-up" size={12} color="#555" style={{marginLeft: 4}}/>
+              </TouchableOpacity>
+
+              <View>
+                <TouchableOpacity 
+                  style={[styles.dropdownItem, sortOrder === '최신등록순' && styles.selectedItem]} 
+                  onPress={() => onSelectSort('최신등록순')}
+                >
+                  <NoScaleText style={[styles.sortText, sortOrder === '최신등록순']}>
+                    최신등록순
+                  </NoScaleText>
+                </TouchableOpacity>
+
+                <TouchableOpacity 
+                  style={[styles.dropdownItem, sortOrder === '기한순' && styles.selectedItem]} 
+                  onPress={() => onSelectSort('기한순')}
+                >
+                  <NoScaleText style={[styles.sortText, sortOrder === '기한순']}>
+                    기한순
+                  </NoScaleText>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
+        </View>
+      </View>
+    </View>
+  )
+}
+
+// 메인 화면 컴포넌트, 루틴 목록과 상태 관리
 export default function RoutineScreen(){
+  // 데이터 및 기본 UI 상태
   const [routine, setRoutine] = useState(DATA);
   const [isAddSubStep, setIsAddSubStep] = useState(false);
   const [subStepText, setSubStepText] = useState('');
+
+  // 삭제, 필터, 정렬 상태
   const [isDelete, setIsDelete] = useState(false);
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [activeFilter, setActiveFilter] = useState(null);
@@ -200,31 +263,43 @@ export default function RoutineScreen(){
   const [sortVisible, setSortVisible] = useState(false);
   const [sortOrder, setSortOrder] = useState('최신등록순');
   const [currentMonth, setCurrentMonth] = useState(new Date());
+
+  // 상세 보기
   const [isDetailMenuVisible, setDetailMenuVisible] = useState(false);
   const [isDetailVisible, setDetailVisible] = useState(false);
   const [detailItem, setDetailItem] = useState(null);
   const [isMainDetailChecked, setIsMainDetailChecked] = useState(false);
   const [isDetailDeleteMode, setIsDetailDeleteMode] = useState(false);
   const [selectedDetailSubIds, setSelectedDetailSubIds] = useState(new Set());
+
+  // 에디터(작성/수정) 및 설정 모달
   const [isEditDetail, setIsEditDetail] = useState(false);
   const [isEditorVisible, setEditorVisible] = useState(false);
   const [editItem, setEditItem] = useState(null);
+
   const [isCalendarVisible, setCalendarVisible] = useState(false);
   const [isTimePickerVisible, setTimePickerVisible] = useState(false);
   const [originalDate, setOriginalDate] = useState(null);
+
   const [isAlarmOn, setIsAlarmOn] = useState(false);
   const [tempAlarm, setTempAlarm] = useState(null);
   const [isAlarmPickerVisible, setAlarmPickerVisible] = useState(false);
+
   const [isRepeatPickerVisible, setRepeatPickerVisible] = useState(false);
   const [repeatStep, setRepeatStep] = useState(1); // 1: 요일선택, 2: 종료일설정
   const [repeatDays, setRepeatDays] = useState([]);
   const [repeatEndDateMode, setRepeatEndDateMode] = useState('none');
   const [repeatEndDate, setRepeatEndDate] = useState(null);
+
+  // 태그 관리
   const [tags, setTags] = useState(TAGS_DATA);
   const [isTagVisible, setTagVisible] = useState(false);
   const [addTagMode, setAddTagMode] = useState({ type: null, parentId: null });
   const [newTagText, setNewTagText] = useState('');
+  const [backupTags, setBackupTags] = useState(null); // 태그 목록 백업
+  const [backupEditTag, setBackupEditTag] = useState(null);
 
+  // 루틴 완료 처리
   const routineComplete = (id) => {
     setRoutine(prevRoutine =>
       prevRoutine.map(routine => {
@@ -232,6 +307,7 @@ export default function RoutineScreen(){
             const newCompleted = !routine.completed;
             let updatedSubSteps = routine.subSteps;
 
+            // 메인이 완료되면 하위도 모두 완료 처리
             if (newCompleted) {
                 if (routine.subSteps) {
                     updatedSubSteps = routine.subSteps.map(step => ({...step, completed: true}));
@@ -251,6 +327,7 @@ export default function RoutineScreen(){
       })
     );
 
+    // 상세 보기 중인 아이템도 동기화
     if (detailItem && detailItem.id === id) {
       setDetailItem(prev => {
          const newCompleted = !prev.completed;
@@ -265,6 +342,7 @@ export default function RoutineScreen(){
     }
   };
 
+  // 중요 표시 토글
   const routineImportant = (id) => {
     setRoutine(prevRoutine =>
       prevRoutine.map(routine =>
@@ -276,6 +354,7 @@ export default function RoutineScreen(){
     }
   };
 
+  // 삭제 모드에서 아이템 선택/해제
   const routineSelect = (parentId, subId = null) => {
     const newSelected = new Set(selectedIds);
     
@@ -318,11 +397,13 @@ export default function RoutineScreen(){
     }
   };
 
+  // 각 항목 LongPress (삭제 모드 표시)
   const itemLongPress = (id) => {
     setIsDelete(true);
     routineSelect(id, null);
   };
 
+  // 각 항목 클릭 (상세 보기 / 삭제 모드 시 선택)
   const itemPress = (item) => {
     if(isDelete){
       routineSelect(item.id, null);
@@ -340,11 +421,12 @@ export default function RoutineScreen(){
     setDetailItem(null);
   };
 
-  const cancleDelete = () => {
+  const cancelDelete = () => {
     setIsDelete(false);
     setSelectedIds(new Set());
   };
 
+  // 선택된 항목 삭제
   const deleteSelected = () => {
     Alert.alert(
       "삭제",
@@ -354,24 +436,25 @@ export default function RoutineScreen(){
         {text: "삭제", style: "destructive",
           onPress: () => {
             setRoutine(prevRoutine => {
-                return prevRoutine.filter(r => {
-                    if (selectedIds.has(r.id)) return false; // 메인 삭제
-                    return true;
-                }).map(r => {
-                    if (r.subSteps) {
-                        const newSubSteps = r.subSteps.filter(step => !selectedIds.has(`${r.id}-${step.id}`));
-                        return { ...r, subSteps: newSubSteps };
-                    }
-                    return r;
-                });
+              return prevRoutine.filter(r => {
+                if (selectedIds.has(r.id)) return false; // 메인 삭제
+                return true;
+              }).map(r => {
+                if (r.subSteps) {
+                  const newSubSteps = r.subSteps.filter(step => !selectedIds.has(`${r.id}-${step.id}`));
+                  return { ...r, subSteps: newSubSteps };
+                }
+                return r;
+              });
             });
-            cancleDelete();
+            cancelDelete();
           }
         }
       ]
     );
   };
 
+  // 상세 화면 삭제 모드 세부 단계 선택/해제 처리
   const handleDetailSubStepSelect = (subStepId) => {
     if (isMainDetailChecked) {
       return;
@@ -386,6 +469,7 @@ export default function RoutineScreen(){
     setSelectedDetailSubIds(newSelected);
   };
 
+  // 상세 화면 삭제 모드의 삭제 버튼
   const confirmDetailDelete = () => {
     if (isMainDetailChecked) {
       Alert.alert("삭제", "이 루틴 전체를 삭제하시겠습니까?", [
@@ -401,10 +485,12 @@ export default function RoutineScreen(){
         return;
       }
 
+      // 세부 단계만 일부 선택된 경우
       if (selectedDetailSubIds.size > 0) {
         Alert.alert("삭제", "선택한 세부 단계를 삭제하시겠습니까?", [
           { text: "취소", style: "cancel" },
           { text: "삭제", style: "destructive", onPress: () => {
+            // 선택되지 않은 항목만 남김
             const newSubSteps = detailItem.subSteps.filter(step => !selectedDetailSubIds.has(step.id));
             
             setDetailItem(prev => ({ ...prev, subSteps: newSubSteps }));
@@ -416,18 +502,22 @@ export default function RoutineScreen(){
         return;
       }
 
+      // 아무것도 선택하지 않고 삭제를 누른 경우
       cancelDetailDeleteMode();
   };
   
+  // 상세 화면 삭제 모드 취소
   const cancelDetailDeleteMode = () => {
     setIsDetailDeleteMode(false);
     setSelectedDetailSubIds(new Set());
     setIsMainDetailChecked(false);
   };
 
+  // 상세 화면 내부에서 세부 단계 완료
   const handleToggleSubStep = (subStepId) => {
     if (!detailItem) return;
 
+    // 이미 완료된 루틴은 세부 단계 수정 불가
     if (detailItem.completed) {
       return;
     }
@@ -443,6 +533,7 @@ export default function RoutineScreen(){
     ));
   };
 
+  // 메인 리스트 화면에서 세부 단계 완료
   const handleToggleSubStepList = (parentId, subStepId) => {
     setRoutine(prevRoutine => prevRoutine.map(routine => {
       if (routine.id === parentId) {
@@ -459,6 +550,7 @@ export default function RoutineScreen(){
     }));
   };
 
+  // 세부 단계 추가 및 저장
   const handleSaveSubStep = () => {
     if (subStepText.trim() === '') {
       setIsAddSubStep(false);
@@ -483,6 +575,26 @@ export default function RoutineScreen(){
     setIsAddSubStep(false);
   };
 
+  // 필터 스크롤 위치 조정
+  const scrollViewRef = useRef(null);
+  const scrollPositions = useRef({});
+
+  useEffect(() => {
+    if (filterVisible && activeFilter) {
+      let key = activeFilter.type;
+      if (key === 'tag') key = activeFilter.value;
+
+      const y = scrollPositions.current[key];
+
+      if (y !== undefined && scrollViewRef.current) {
+        setTimeout(() => {
+          scrollViewRef.current.scrollTo({ y: y, animated: false });
+        }, 100); 
+      }
+    }
+  }, [filterVisible]);
+
+  // 필터링 및 정렬
   const {filterSortedRoutine, remainderCount} = useMemo(() => {
     const parsedDate = (dateString) => {
       if(!dateString) return new Date(0);
@@ -490,6 +602,7 @@ export default function RoutineScreen(){
       return new Date(reDate);
     }
 
+    // 월별 필터링
     let filtered = routine.filter(item => {
       if(!item.date) return false;
       const itemDate = parsedDate(item.date);
@@ -501,6 +614,7 @@ export default function RoutineScreen(){
       return itemDate.getFullYear() === currentMonth.getFullYear() && itemDate.getMonth() === currentMonth.getMonth();
     });
 
+    // 활성 필터(중요, 오늘, 태그) 적용
     if (activeFilter) {
       if (activeFilter.type === 'important') {
         filtered = filtered.filter(item => item.important);
@@ -526,6 +640,7 @@ export default function RoutineScreen(){
       }
     }
 
+    // 완료/미완료 구분 및 정렬(최신순/기한순)
     const uncompleted = filtered.filter(item => !item.completed);
     const completed = filtered.filter(item => item.completed);
 
@@ -543,7 +658,7 @@ export default function RoutineScreen(){
     const count = uncompleted.length;
 
     return{
-      filterSortedRoutine: [...uncompleted, ...completed],
+      filterSortedRoutine: [...uncompleted, ...completed],  // 미완료 우선 표시
       remainderCount: count
     };
   }, [routine, sortOrder, currentMonth, activeFilter]);
@@ -560,6 +675,7 @@ export default function RoutineScreen(){
     setCurrentMonth(prev => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
   };
 
+  // 뒤로가기 버튼 (모달 닫기 등)
   useEffect(() => {
     const backAction = () => {
       if (isAddSubStep) {
@@ -579,7 +695,7 @@ export default function RoutineScreen(){
       }
 
       if (isDelete) {
-        cancleDelete();
+        cancelDelete();
         return true;
       }
 
@@ -590,12 +706,12 @@ export default function RoutineScreen(){
     return () => backHandler.remove();
   }, [isEditorVisible, editItem, isAddSubStep, isDelete, isDetailDeleteMode]);
 
+  // 에디터 열기 (새 루틴 작성)
   const handleShowEditor = () => {
     const today = new Date();
     const year = today.getFullYear();
     const month = String(today.getMonth() + 1).padStart(2, '0');
     const date = String(today.getDate()).padStart(2, '0');
-    const today_date = `${year}.${month}.${date}`;
 
     setIsEditDetail(false);
 
@@ -620,6 +736,7 @@ export default function RoutineScreen(){
     setEditorVisible(true);
   };
 
+  // 에디터 닫기
   const handleCloseEditor = () => {
     setEditorVisible(false);
 
@@ -637,11 +754,13 @@ export default function RoutineScreen(){
     }
   }
 
+  // 상세 화면에서 삭제 선택 시
   const handleDeleteDetail = () => {
     if (detailItem.subSteps && detailItem.subSteps.length > 0) {
       setIsDetailDeleteMode(true);
       setDetailMenuVisible(false);
     }
+    // 세부 단계가 없으면 바로 삭제 여부 묻기
     else{
       Alert.alert("삭제", "이 루틴을 삭제하시겠습니까?", [
         { text: "취소", style: "cancel", onPress: () => setDetailMenuVisible(false) },
@@ -662,14 +781,17 @@ export default function RoutineScreen(){
     
   };
 
+  // 상세 메뉴에서 수정 선택 시 에디터 열기
   const handleEditMenu = () => {
     setDetailMenuVisible(false);
     handleMoveToEdit('full');
   };
 
+  // 에디터 작성 취소 (변경사항 확인)
   const handleWriteCancel = () => {
     let hasChanges = false;
 
+    // 수정 모드일 때 변경 사항 비교
     if(isEditDetail && detailItem){
       const isTitleChanged = editItem.title !== detailItem.title;
       const isDateChanged = editItem.date !== detailItem.date;
@@ -682,6 +804,7 @@ export default function RoutineScreen(){
         hasChanges = true;
       }
     }
+    // 새 글 작성일 때 내용 확인
     else{
       if(editItem && (editItem.title.trim() !== '' || editItem.tag !== null || editItem.remind !== null || editItem.repeated !== null)){
         hasChanges = true;      
@@ -703,6 +826,7 @@ export default function RoutineScreen(){
     }
   };
 
+  // 루틴 저장 (새 항목 추가 / 수정)
   const handleSaveRoutine = () => {
     if (editItem && editItem.title.trim() !== '' && editItem.date) { 
       setRoutine(prev => {
@@ -711,7 +835,7 @@ export default function RoutineScreen(){
           return prev.map(r => r.id === editItem.id ? editItem : r);
         }
         else {
-          return [editItem, ...prev];
+          return [editItem, ...prev];  // 신규
         }
       });
 
@@ -728,11 +852,13 @@ export default function RoutineScreen(){
     }
   }
 
+  // 상세 화면 데이터를 에디터로 복사 및 에디터 표시
   const handleMoveToEdit = (target) => {
     if (!detailItem) return;
 
     setIsEditDetail(true);
 
+    // 기존 상세 데이터를 editItem으로 복사
     setEditItem({
       ...detailItem,
       tag: detailItem.tag || null,
@@ -741,9 +867,10 @@ export default function RoutineScreen(){
       subSteps: detailItem.subSteps || [],
     });
 
+    // 태그 선택 상태 초기화 및 현재 태그 반영
     const currentTagName = detailItem.tag;
-    setTags(prevTags => {
-      const resetTags = prevTags.map(t => ({
+    const getInitializedTags = (list) => {
+      const resetTags = list.map(t => ({
         ...t,
         selected: false,
         subTags: t.subTags.map(s => ({ ...s, selected: false }))
@@ -762,7 +889,14 @@ export default function RoutineScreen(){
         ...t,
         subTags: t.subTags.map(s => s.name === currentTagName ? { ...s, selected: true } : s)
       }));
-    });
+    };
+
+    const newTags = getInitializedTags(tags);
+    setTags(newTags);
+    
+    // 취소 시 복구를 위한 백업
+    setBackupTags(JSON.parse(JSON.stringify(newTags)));
+    setBackupEditTag(detailItem.tag || null);
 
     if (target === 'tag') {
         setTimeout(() => {
@@ -786,6 +920,8 @@ export default function RoutineScreen(){
     setTimePickerVisible(true);
   }
 
+  // 날짜/시간/알림/반복/태그 관련 핸들러들
+  // 각각의 모달을 열고, 값을 선택하고, 임시 상태에 저장했다가 확인 시 editItem에 반영
   const handleOpenCalendar = () => {
     Keyboard.dismiss();
 
@@ -849,7 +985,7 @@ export default function RoutineScreen(){
     setAlarmPickerVisible(false)
   }
 
-  const handleCancleAlarm = (time) => {
+  const handleCancelAlarm = (time) => {
     setAlarmPickerVisible(false)
   }
 
@@ -954,6 +1090,12 @@ export default function RoutineScreen(){
 
   const handleOpenTag = () => {
     Keyboard.dismiss();
+
+    setBackupTags(JSON.parse(JSON.stringify(tags))); 
+    if (editItem) {
+      setBackupEditTag(editItem.tag);
+    }
+    
     setAddTagMode({ type: null, parentId: null }); // 초기화
     setNewTagText('');
     setTimeout(() => {
@@ -962,6 +1104,12 @@ export default function RoutineScreen(){
   };
 
   const handleCancelTag = () => {
+    if (backupTags) {
+        setTags(backupTags);
+    }
+    if (editItem) {
+        setEditItem(prev => ({ ...prev, tag: backupEditTag }));
+    }
     setTagVisible(false);
     if (isEditDetail) {
         setTimeout(() => setDetailVisible(true), 100);
@@ -1024,14 +1172,32 @@ export default function RoutineScreen(){
   };
 
   const saveNewTag = () => {
-    if (newTagText.trim() === ''){
+    const tagNameToCheck = newTagText.trim();
+
+    if (tagNameToCheck === ''){
       setAddTagMode({ type: null, parentId: null });
       setNewTagText('');
       return;
     }
     
+    // 중복 이름 체크
+    const isDuplicate = tags.some(tag => {
+      if (tag.name === tagNameToCheck) return true;
+      
+      if (tag.subTags && tag.subTags.some(sub => sub.name === tagNameToCheck)) {
+        return true;
+      }
+      
+      return false;
+    });
+
+    if (isDuplicate) {
+      Alert.alert("알림", "이미 존재하는 태그 이름입니다.");
+      return; // 중복이면 함수 종료
+    }
+    
     const newId = String(Date.now());
-    let newTagName = newTagText;
+    let newTagName = tagNameToCheck;
     
     setTags(prevTags => {
       const resetTags = prevTags.map(t => ({
@@ -1041,14 +1207,14 @@ export default function RoutineScreen(){
       }));
 
       if (addTagMode.type === 'parent') {
-        return [...resetTags, { id: newId, name: newTagText, selected: true, subTags: [] }];
+        return [...resetTags, { id: newId, name: newTagName, selected: true, subTags: [] }];
       } 
       else if (addTagMode.type === 'child') {
         return resetTags.map(t => {
           if (t.id === addTagMode.parentId) {
             return {
               ...t,
-              subTags: [...t.subTags, { id: newId, name: newTagText, selected: true }]
+              subTags: [...t.subTags, { id: newId, name: newTagName, selected: true }]
             };
           }
           return t;
@@ -1072,26 +1238,48 @@ export default function RoutineScreen(){
     <SafeAreaView  style={styles.screen}>
       <View style={styles.container}>
 
+        {/* 필터/정렬 드롭다운 배경(터치 시 닫기)*/ }
+        {(filterVisible || sortVisible) && (
+          <TouchableOpacity 
+            activeOpacity={1} 
+            style={styles.backdrop} 
+            onPress={() => {
+              setFilterVisible(false);
+              setSortVisible(false);
+            }} 
+          />
+        )}
+        
+        <View style={{ zIndex: 3000, backgroundColor: '#f9f9f9' }}> 
+          <RoutineHeader 
+            isDelete={isDelete}
+            selectCount={selectedIds.size}
+            onCancelDelete={cancelDelete}
+            onDeleteSelected={deleteSelected}
+            remainderCount={remainderCount}
+
+            filterVisible={filterVisible}
+            setFilterVisible={setFilterVisible}
+            activeFilter={activeFilter}
+            setActiveFilter={setActiveFilter}
+            tags={tags}
+            
+            sortVisible={sortVisible}
+            setSortVisible={setSortVisible}
+            onSelectSort={itemSort}
+            sortOrder={sortOrder}
+            currentMonth={currentMonth}
+            onPrevMonth={handlePrevMonth}
+            onNextMonth={handleNextMonth}
+            isFilterActive={activeFilter !== null}
+          />
+        </View>
+
         <FlatList
           data={filterSortedRoutine}
           keyExtractor={item => item.id}
-
-          ListHeaderComponent={
-            <RoutineHeader 
-              isDelete={isDelete}
-              selectCount={selectedIds.size}
-              onCancelDelete={cancleDelete}
-              onDeleteSelected={deleteSelected}
-              remainderCount={remainderCount}
-              onShowFilter={()=>setFilterVisible(true)}
-              onShowSort={()=>setSortVisible(true)}
-              sortOrderText={sortOrder}
-              currentMonth={currentMonth}
-              onPrevMonth={handlePrevMonth}
-              onNextMonth={handleNextMonth}
-              isFilterActive={activeFilter !== null}
-            />
-          }
+          contentContainerStyle={{ paddingBottom: 50 }}
+          ListHeaderComponentStyle={{ zIndex: 2 }}
 
           renderItem={({item}) => (
             <RoutineItem
@@ -1118,81 +1306,98 @@ export default function RoutineScreen(){
         />
       </View>
 
-      <Modal transparent={true} visible={filterVisible} onRequestClose={() => setFilterVisible(false)}>
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={filterVisible}
+        onRequestClose={() => setFilterVisible(false)}
+        statusBarTranslucent
+      >
         <TouchableOpacity 
+          style={styles.filterBackdrop} 
           activeOpacity={1} 
-          onPress={() => setFilterVisible(false)} 
-          style={[styles.baseBackdrop, { justifyContent: 'center', alignItems: 'center' }]}
+          onPress={() => setFilterVisible(false)}
         >
-          <View style={styles.filterModalContent}>
-            <NoScaleText style={styles.filterTitle}>필터</NoScaleText>
-            <View style={styles.filterDivider} />
+          <View style={styles.filterModalContainer}>
+            <TouchableWithoutFeedback>
+              <View style={styles.filterContent}>
+                <NoScaleText style={styles.filterTitle}>필터</NoScaleText>
+                <View style={styles.filterDivider} />
+                
+                <ScrollView
+                  ref={scrollViewRef}
+                  style={{ maxHeight: 250 }}
+                  contentContainerStyle={{ paddingVertical: 10 }}
+                  showsVerticalScrollIndicator={true}
+                >
 
-            <TouchableOpacity 
-              style={[
-                styles.filterOption, 
-                activeFilter?.type === 'important' && { backgroundColor: '#F0F0F0' }
-              ]} 
-              onPress={() => {
-                if(activeFilter?.type === 'important') setActiveFilter(null);
-                else setActiveFilter({ type: 'important' });
-                setFilterVisible(false);
-              }}
-            >
-              <Ionicons name="star" size={18} color="#3A9CFF" style={{marginRight: 10}} />
-              <NoScaleText style={styles.filterText}>중요한 루틴</NoScaleText>
-            </TouchableOpacity>
+                  {/* 중요 필터 */}
+                  <TouchableOpacity
+                    onLayout={(event) => {
+                      scrollPositions.current['important'] = event.nativeEvent.layout.y;
+                    }}
+                    style={[
+                      styles.filterOption, 
+                      activeFilter?.type === 'important' && { backgroundColor: '#F0F0F0' }
+                    ]} 
+                    onPress={() => {
+                      if(activeFilter?.type === 'important') setActiveFilter(null);
+                      else setActiveFilter({ type: 'important' });
+                      setFilterVisible(false);
+                    }}
+                  >
+                    <Ionicons name="star" size={18} color="#3A9CFF" style={{marginRight: 10}} />
+                    <NoScaleText style={styles.filterText}>중요한 일</NoScaleText>
+                  </TouchableOpacity>
 
-            <TouchableOpacity 
-              style={[
-                styles.filterOption, 
-                activeFilter?.type === 'today' && { backgroundColor: '#F0F0F0' }
-              ]}
-              onPress={() => {
-                if(activeFilter?.type === 'today') setActiveFilter(null);
-                else setActiveFilter({ type: 'today' });
-                setFilterVisible(false);
-              }}
-            >
-              <Ionicons name="ellipse-outline" size={18} color="#3A9CFF" style={{marginRight: 10}} />
-              <NoScaleText style={styles.filterText}>오늘 루틴</NoScaleText>
-            </TouchableOpacity>
+                  {/* 오늘 필터 */}
+                  <TouchableOpacity
+                    onLayout={(event) => {
+                      scrollPositions.current['today'] = event.nativeEvent.layout.y;
+                    }}
+                    style={[
+                      styles.filterOption, 
+                      activeFilter?.type === 'today' && { backgroundColor: '#F0F0F0' }
+                    ]}
+                    onPress={() => {
+                      if(activeFilter?.type === 'today') setActiveFilter(null);
+                      else setActiveFilter({ type: 'today' });
+                      setFilterVisible(false);
+                    }}
+                  >
+                    <Ionicons name="ellipse-outline" size={18} color="#3A9CFF" style={{marginRight: 10}} />
+                    <NoScaleText style={styles.filterText}>오늘 루틴</NoScaleText>
+                  </TouchableOpacity>
 
-            <View style={[styles.filterOption, { marginTop: 5 }]}>
-              <MaterialCommunityIcons name="label-outline" size={18} color="gray" style={{marginRight: 10}} />
-              <NoScaleText style={styles.filterText}>태그 :</NoScaleText>
-            </View>
-            
-            {tags.map(tag => (
-              <TouchableOpacity 
-                key={tag.id}
-                style={[
-                  styles.filterSubOption,
-                  (activeFilter?.type === 'tag' && activeFilter?.value === tag.name) && { backgroundColor: '#F0F0F0' }
-                ]}
-                onPress={() => {
-                  if(activeFilter?.type === 'tag' && activeFilter?.value === tag.name) setActiveFilter(null);
-                  else setActiveFilter({ type: 'tag', value: tag.name });
-                  setFilterVisible(false);
-                }}
-              >
-                <NoScaleText style={styles.filterSubText}>{tag.name}</NoScaleText>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </TouchableOpacity>
-      </Modal>
-
-      <Modal transparent={true} visible={sortVisible} onRequestClose={() => setSortVisible(false)}>
-        <TouchableOpacity activeOpacity={1} onPressOut={() => setSortVisible(false)} style={[styles.baseBackdrop, { justifyContent: 'center', alignItems: 'center' }]}>
-          <View style={[styles.modalContent, { minWidth: 200 }]}>
-            <NoScaleText style={styles.modalTitle}>정렬</NoScaleText>
-            <TouchableOpacity onPress={() => itemSort('최신등록순')} style={styles.modalButton}>
-              <NoScaleText>최신등록순</NoScaleText>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => itemSort('기한순')} style={styles.modalButton}>
-              <NoScaleText>기한순</NoScaleText>
-            </TouchableOpacity>
+                  {/* 태그 라벨 */}
+                  <View style={[styles.filterOption, { marginTop: 5, paddingVertical: 5 }]}>
+                    <MaterialCommunityIcons name="label-outline" size={18} color="gray" style={{marginRight: 10}} />
+                    <NoScaleText style={styles.filterText}>태그 :</NoScaleText>
+                  </View>
+                  
+                  {/* 태그 목록 */}
+                  {tags.map(tag => (
+                    <TouchableOpacity 
+                      key={tag.id}
+                      onLayout={(event) => {
+                        scrollPositions.current[tag.name] = event.nativeEvent.layout.y;
+                      }}
+                      style={[
+                        styles.filterSubOption,
+                        (activeFilter?.type === 'tag' && activeFilter?.value === tag.name) && { backgroundColor: '#F0F0F0' }
+                      ]}
+                      onPress={() => {
+                        if(activeFilter?.type === 'tag' && activeFilter?.value === tag.name) setActiveFilter(null);
+                        else setActiveFilter({ type: 'tag', value: tag.name });
+                        setFilterVisible(false);
+                      }}
+                    >
+                      <NoScaleText style={styles.filterSubText}>{tag.name}</NoScaleText>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              </View>
+            </TouchableWithoutFeedback>
           </View>
         </TouchableOpacity>
       </Modal>
@@ -1567,7 +1772,7 @@ export default function RoutineScreen(){
             <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end'}}>
               <TouchableOpacity 
                 style={[styles.modalButton,{marginRight: 15}]}
-                onPress={handleCancleAlarm}
+                onPress={handleCancelAlarm}
               >
                 <NoScaleText style={{color: '#595959', fontSize: 16}}>취소</NoScaleText>
               </TouchableOpacity>
@@ -1871,6 +2076,7 @@ export default function RoutineScreen(){
   )
 }
 
+// 스타일
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
@@ -1926,6 +2132,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'gray',
     marginLeft: 16,
     marginRight: 16,
+    marginBottom: 10,
   },
   statusBox: {
     borderRadius: 15,
@@ -1940,25 +2147,122 @@ const styles = StyleSheet.create({
   controlsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'flex-start',
     paddingHorizontal: 16,
     marginTop: 10,
+    marginBottom: 10,
+    zIndex: 2000,
+  },
+  filterContainer: {
+    position: 'relative',
+    zIndex: 2000, 
   },
   filterButton: {
-    padding: 6,
-    backgroundColor: 'lightgray',
-    borderRadius: 20,
+    padding: 8,
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  filterTitle: {
+    fontSize: 14,
+    color: '#888',
+    marginLeft: 15,
+    marginBottom: 5,
+  },
+  filterDivider: {
+    height: 1,
+    backgroundColor: '#E0E0E0',
+  },
+  filterOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 5,
+    paddingHorizontal: 20,
+  },
+  filterSubOption: {
+    paddingVertical: 8,
+    paddingLeft: 48,
+    paddingRight: 20,
+  },
+  filterText: {
+    fontSize: 15,
+    color: '#333',
+  },
+  filterSubText: {
+    fontSize: 14,
+    color: '#555',
+  },
+  filterBackdrop: {
+    flex: 1,
+    paddingTop: 190, 
+    paddingLeft: 20,
+  },
+  filterModalContainer: {
+    position: 'absolute',
+    top: 345, 
+    left: 36,
+  },
+  filterContent: {
+    width: 200,
+    backgroundColor: 'white',
+    borderRadius: 10,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    overflow: 'hidden',
+    paddingTop: 15,
+  },
+  sortContainer: {
+    position: 'relative',
+    minWidth: 90,
+    zIndex: 1000,
   },
   sortButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'lightgray',
+    justifyContent: 'space-between',
+    backgroundColor: '#EBEBEB', 
+    paddingVertical: 8,
     paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
+    borderRadius: 15,
+  },
+  dropdownFull: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: '#EBEBEB',
+    borderRadius: 15,
+    overflow: 'hidden',
+
+    elevation: 5,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+  },
+  dropdownHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    backgroundColor: '#EBEBEB',
+  },
+  dropdownItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 10,
+  },
+  selectedItem: {
+    backgroundColor: 'white',
   },
   sortText: {
-    marginHorizontal: 4,
-    fontSize: 14,
+    fontSize: 12,
+    color: '#333',
   },
   itemRow: {
     flexDirection: 'row',
@@ -1998,11 +2302,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#3A9CFF',
     borderRadius: 30,
     elevation: 8,
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 16,
   },
   modalButton: {
     paddingVertical: 12,
@@ -2144,19 +2443,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: '#555',
   },
-  filterModalContent: {
-    backgroundColor: 'white',
-    borderRadius: 10,
-    paddingVertical: 15,
-    paddingHorizontal: 0,
-    width: 200,
-    
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-  },
   filterTitle: {
     fontSize: 16,
     fontWeight: 'bold',
@@ -2187,6 +2473,15 @@ const styles = StyleSheet.create({
   filterSubText: {
     fontSize: 14,
     color: '#555',
+  },
+  backdrop: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 1,
+    backgroundColor: 'transparent',
   },
   menuPopup: {
     position: 'absolute',
