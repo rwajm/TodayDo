@@ -17,7 +17,7 @@ import ForgotPWNewPW from './src/screens/ForgotPW_NewPW';
 import ForgotPWFin from './src/screens/ForgotPW_Fin';
 import AccountManagement from './src/screens/AccountManagement';
 import ChangePW from './src/screens/ChangePW';
-import Social from './src/screens/Social';
+//import Social from './src/screens/Social';
 import NotificationScreen from './src/screens/NotificationScreen';
 import BottomNavigator from './src/navigation/BottomNavigator';
 
@@ -149,16 +149,6 @@ export default function App() {
           component={ChangePW}
           options={({ navigation }) => ({
             title: '계정복구',
-            headerLeft: () => <BackButton onPress={() => navigation.goBack()} />,
-            headerShown: true,
-            headerShadowVisible: false,
-          })}
-        />
-        <Stack.Screen
-          name="Social"
-          component={Social}
-          options={({ navigation }) => ({
-            title: '친구',
             headerLeft: () => <BackButton onPress={() => navigation.goBack()} />,
             headerShown: true,
             headerShadowVisible: false,

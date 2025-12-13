@@ -12,8 +12,7 @@
           { text: '취소', style: 'cancel' },
           { text: '로그아웃', style: 'destructive', onPress: () => {
               // 로그아웃 로직 실행 (예: 토큰 삭제 등)
-              // 이후 원하는 화면으로 이동
-              navigation.navigate('InitialScreen'); // 예: 초기화면으로 이동
+              navigation.navigate('InitialScreen');
             }
           },
         ],
@@ -37,7 +36,7 @@
 
             <TouchableOpacity 
               onPress={() => {
-                navigation.navigate('ForgotPWEmail',);
+                navigation.navigate('Statistics',);
               }}
             >
               <NoScaleText style={styles.data}>통계</NoScaleText>
@@ -45,7 +44,7 @@
 
             <TouchableOpacity 
               onPress={() => {
-                navigation.navigate('ForgotPWEmail',);
+                navigation.navigate('Reward',);
               }}
             >
               <NoScaleText style={styles.reward}>리워드</NoScaleText>

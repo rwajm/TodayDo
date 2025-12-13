@@ -13,7 +13,8 @@ import HomeScreen from '../screens/HomeScreen'
 import RecordScreen from '../screens/RecordScreen'
 import TodoScreen from '../screens/TodoScreen'
 import RoutineScreen from '../screens/RoutineScreen'
-import MypageScreen from '../screens/MypageScreen'
+//import MypageScreen from '../screens/MypageScreen'
+import MyPageStack from './MypageStack';
 
 const Tab = createBottomTabNavigator();
 
@@ -23,7 +24,7 @@ export default function BottomTabNavigator(){
       initialRouteName='Home'
       backBehavior="initialRoute"
       screenOptions={({route}) => ({
-
+        
         tabBarShowLabel: false,
 
         tabBarItemStyle: {
@@ -59,7 +60,7 @@ export default function BottomTabNavigator(){
       <Tab.Screen name="Todo" component={TodoScreen}/>
       <Tab.Screen name="Home" component={HomeScreen} options={{headerShown: false}}/>
       <Tab.Screen name="Routine" component={RoutineScreen}/>
-      <Tab.Screen name="Mypage" component={MypageScreen}/>
+      <Tab.Screen name="Mypage" component={MyPageStack} options={{headerShown: false}}/>
       
     </Tab.Navigator>
   )
