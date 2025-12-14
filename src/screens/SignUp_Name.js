@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { NoScaleText, NoScaleTextInput } from '../components/NoScaleText';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Keyboard, TouchableWithoutFeedback } from 'react-native';
+import { View, TouchableOpacity, StyleSheet, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import { useAuth } from '../core/context/authContext';
 
 export default function SignUpName({ navigation, route }) {
-  const { email, password } = route.params;
   const [nickname, setNickname] = useState('');
   const { signUp } = useAuth();
 
@@ -14,7 +13,7 @@ export default function SignUpName({ navigation, route }) {
 
   const handleSignUp = async () => {
     try {
-      await signUp(email, password, nickname);
+      await signUp(nickname);
       // 성공 시 완료 화면으로 이동
       navigation.navigate('SignUpFin', { nickname });
     } catch (error) {

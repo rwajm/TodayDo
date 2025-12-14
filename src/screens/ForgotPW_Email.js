@@ -4,35 +4,6 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Keyboard, Touchabl
 
 export default function ForgotPWEmail({ navigation }) {
   const [email, setEmail] = useState('');
-  const [code, setCode] = useState('');
-  const [isCodeSent, setIsCodeSent] = useState(false);
-
-  const handlePress = () => {
-    if (!isCodeSent) {
-      // 1단계: 인증코드 보내기
-      sendEmailCode(email);
-      setIsCodeSent(true);
-    } else {
-      // 2단계: 인증코드 확인 후 다음 단계
-      navigation.navigate('SignUpPW', { email, code });
-    }
-  };
-
-  //인증코드 전송
-  const sendEmailCode = () => {
-    // 실제 API 연결
-    console.log('인증코드 전송:', email);
-    setIsCodeSent(true);
-  };
-
-  const resendCode = () => {
-    // TODO: 재전송 API
-    console.log('인증코드 재전송:', email);
-  };
-
-  const isButtonDisabled =
-    (!isCodeSent && !email) ||
-    (isCodeSent && !code);
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
@@ -49,35 +20,15 @@ export default function ForgotPWEmail({ navigation }) {
               onChangeText={setEmail}
               keyboardType="email-address"
               autoCapitalize="none"
-              editable={!isCodeSent}
             />
           </View>
 
-          {isCodeSent && (
-            <View style={styles.inputContainer}>
-              <NoScaleText style={styles.emailText}>
-                {email}로 인증코드를 전송했습니다.
-              </NoScaleText>
-
-              <NoScaleText style={styles.label}>이메일 인증코드 입력</NoScaleText>
-              <NoScaleTextInput
-                style={styles.input}
-                keyboardType="numeric"
-                maxLength={5}
-                value={code}
-                onChangeText={setCode}
-              />
-
-              <TouchableOpacity onPress={resendCode}>
-                <NoScaleText style={styles.resend}>재전송</NoScaleText>
-              </TouchableOpacity>
-            </View>
-          )}
-
           <TouchableOpacity
-            style={[styles.button, isButtonDisabled && styles.buttonDisabled]}
-            disabled={isButtonDisabled}
-            onPress={handlePress}
+            style={[styles.button, !email && styles.buttonDisabled]}
+            disabled={!email}
+            onPress={() => {
+              navigation.navigate('EmailVerificationPW', { email });
+            }}
           >
             <NoScaleText style={styles.buttonText}>계속</NoScaleText>
           </TouchableOpacity>
@@ -122,15 +73,6 @@ export const styles = StyleSheet.create({
     height: 40,
     fontSize: 14,
     color: '#333',
-  },
-  emailText: {
-    marginBottom: 8,
-    color: '#8f8f8f',
-  },
-  resend: {
-    textAlign: 'right',
-    color: '#4a90e2',
-    marginTop: 10,
   },
   button: {
     backgroundColor: '#3A9CFF',

@@ -48,7 +48,7 @@
                 <NoScaleText style={styles.nickname}>User</NoScaleText>
 
                 <TouchableOpacity
-                  onPress={() => navigation.navigate('AccountManagement')}
+                  onPress={() => navigation.navigate('EditProfile')}
                 >
                   <Image source={editIcon} style={styles.editIcon} />
                 </TouchableOpacity>

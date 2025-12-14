@@ -7,11 +7,12 @@ import Toast from 'react-native-toast-message';
 import BackButton from './src/components/BackButton';
 import InitialScreen from './src/screens/InitialScreen';
 import SignUpEmail from './src/screens/SignUp_Email';
-import SignUpPW from './src/screens/SignUp_PW';
+import EmailVerification from './src/screens/EmailVerification';
 import SignUpName from './src/screens/SignUp_Name';
 import SignUpFin from './src/screens/SignUp_Fin';
 import SignIn from './src/screens/SignIn';
 import ForgotPWEmail from './src/screens/ForgotPW_Email';
+import EmailVerificationPW from './src/screens/EmailVerification_PW';
 import ForgotPWNewPW from './src/screens/ForgotPW_NewPW';
 import ForgotPWFin from './src/screens/ForgotPW_Fin';
 import ChangePW from './src/screens/ChangePW';
@@ -49,8 +50,8 @@ export default function App() {
                   })}
                 />
                 <Stack.Screen
-                  name="SignUpPW"
-                  component={SignUpPW}
+                  name="EmailVerification"
+                  component={EmailVerification}
                   options={({ navigation }) => ({
                     title: '회원가입',
                     headerLeft: () => <BackButton onPress={() => navigation.goBack()} />,
@@ -86,6 +87,16 @@ export default function App() {
                 <Stack.Screen
                   name="ForgotPWEmail"
                   component={ForgotPWEmail}
+                  options={({ navigation }) => ({
+                    title: '계정복구',
+                    headerLeft: () => <BackButton onPress={() => navigation.goBack()} />,
+                    headerShown: true,
+                    headerShadowVisible: false,
+                  })}
+                />
+                <Stack.Screen
+                  name="EmailVerificationPW"
+                  component={EmailVerificationPW}
                   options={({ navigation }) => ({
                     title: '계정복구',
                     headerLeft: () => <BackButton onPress={() => navigation.goBack()} />,

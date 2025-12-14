@@ -74,13 +74,13 @@ export default function Reward({ navigation }) {
   ]);
 
   const [RoutineReward, setRoutineReward] = useState([
-    { id: 'routine-1', 
+    { id: 'routine-1',
       title: '🌱 자라나는 루틴 새싹',
       description: '첫 루틴 완료!',
       claimed: false,
       isAchieved: (stats) => stats.routineStreak >= 1,
     },
-    { id: 'routine-2', 
+    { id: 'routine-2',
       title: '🦔 꾸준 고슴도치',
       description: '7일 연속 루틴 성공!',
       claimed: false,

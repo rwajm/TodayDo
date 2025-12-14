@@ -1,95 +1,91 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { View, TouchableOpacity, StyleSheet, Keyboard, TouchableWithoutFeedback, ScrollView } from 'react-native';
 import { NoScaleText, NoScaleTextInput } from '../components/NoScaleText';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Keyboard, TouchableWithoutFeedback } from 'react-native';
 
 export default function SignUpEmail({ navigation }) {
   const [email, setEmail] = useState('');
-  const [code, setCode] = useState('');
-  const [isCodeSent, setIsCodeSent] = useState(false);
+  const [password, setPassword] = useState('');
+  const [passwordConfirm, setPasswordConfirm] = useState('');
+  const isButtonValid = password.length > 0 && password === passwordConfirm && email.length > 0;
 
   const totalSteps = 3; // 회원가입 총 단계
   const currentStep = 1; // 현재 단계
   const progressWidth = `${(currentStep / totalSteps) * 100}%`; // 진행바 길이
 
-  const handlePress = () => {
-    if (!isCodeSent) {
-      // 1단계: 인증코드 보내기
-      sendEmailCode(email);
-      setIsCodeSent(true);
-    } else {
-      // 2단계: 인증코드 확인 후 다음 단계
-      navigation.navigate('SignUpPW', { email, code });
-    }
-  };
+  const scrollViewRef = useRef(null);
 
-  //인증코드 전송
-  const sendEmailCode = () => {
-    // 실제 API 연결
-    console.log('인증코드 전송:', email);
-    setIsCodeSent(true);
-  };
+  useEffect(() => {
+    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+      if (scrollViewRef.current) {
+        scrollViewRef.current.scrollTo({ y: 0, animated: true });
+      }
+    });
 
-  const resendCode = () => {
-    // TODO: 재전송 API
-    console.log('인증코드 재전송:', email);
-  };
-
-  const isButtonDisabled =
-    (!isCodeSent && !email) ||
-    (isCodeSent && !code);
+    return () => {
+      keyboardDidHideListener.remove();
+    };
+  }, []);
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <View style={{ flex: 1, backgroundColor: '#fff' }}>
-        <View style={styles.container}>
-          <View style={styles.progressBar}>
-            <View style={[styles.progressFill, { width: progressWidth }]} />
-          </View>
+        <ScrollView
+          ref={scrollViewRef}
+          contentContainerStyle={{ paddingBottom: 0 }}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View style={styles.container}>
+            <View style={styles.progressBar}>
+              <View style={[styles.progressFill, { width: progressWidth }]} />
+            </View>
 
-          <View style={styles.inputContainer}>
-            <NoScaleText style={styles.label}>이메일 입력</NoScaleText>
-            <NoScaleTextInput
-              style={styles.input}
-              placeholder="e-mail"
-              placeholderTextColor="#bbb"
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              editable={!isCodeSent}
-            />
-          </View>
-
-          {isCodeSent && (
             <View style={styles.inputContainer}>
-              <NoScaleText style={styles.emailText}>
-                {email}로 인증코드를 전송했습니다.
-              </NoScaleText>
-
-              <NoScaleText style={styles.label}>이메일 인증코드 입력</NoScaleText>
+              <NoScaleText style={styles.label}>이메일 입력</NoScaleText>
               <NoScaleTextInput
                 style={styles.input}
-                keyboardType="numeric"
-                maxLength={5}
-                value={code}
-                onChangeText={setCode}
+                placeholder="e-mail"
+                placeholderTextColor="#bbb"
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
               />
-
-              <TouchableOpacity onPress={resendCode}>
-                <NoScaleText style={styles.resend}>재전송</NoScaleText>
-              </TouchableOpacity>
             </View>
-          )}
 
-          <TouchableOpacity
-            style={[styles.button, isButtonDisabled && styles.buttonDisabled]}
-            disabled={isButtonDisabled}
-            onPress={handlePress}
-          >
-            <NoScaleText style={styles.buttonText}>계속</NoScaleText>
-          </TouchableOpacity>
+            <View style={styles.inputContainer}>
+              <NoScaleText style={styles.label1}>비밀번호 입력</NoScaleText>
+              <NoScaleTextInput
+                style={styles.input}
+                placeholder="password"
+                placeholderTextColor="#bbb"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry={true}
+                autoCapitalize="none"
+              />
+              <NoScaleText style={styles.label2}>비밀번호 확인</NoScaleText>
+              <NoScaleTextInput
+                style={styles.input}
+                placeholder="password"
+                placeholderTextColor="#bbb"
+                value={passwordConfirm}
+                onChangeText={setPasswordConfirm}
+                secureTextEntry={true}
+                autoCapitalize="none"
+              />
+            </View>
 
-        </View>
+            <TouchableOpacity
+              style={[styles.button, !isButtonValid && styles.buttonDisabled]}
+              disabled={!isButtonValid}
+              onPress={() => {
+                navigation.navigate('EmailVerification', { email });
+              }}
+            >
+              <NoScaleText style={styles.buttonText}>계속</NoScaleText>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
       </View>
     </TouchableWithoutFeedback>
   );
@@ -136,21 +132,23 @@ export const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 20,
   },
+  label1: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
+  label2: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginTop: 40,
+    marginBottom: 20,
+  },
   input: {
     borderBottomWidth: 1,
     borderBottomColor: '#ccc',
     height: 40,
     fontSize: 14,
     color: '#333',
-  },
-  emailText: {
-    marginBottom: 8,
-    color: '#8f8f8f',
-  },
-  resend: {
-    textAlign: 'right',
-    color: '#4a90e2',
-    marginTop: 10,
   },
   button: {
     backgroundColor: '#3A9CFF',
@@ -160,6 +158,7 @@ export const styles = StyleSheet.create({
     width: 80,
     alignSelf: 'center',
     marginTop: 50,
+    marginBottom: 500,
   },
   buttonDisabled: {
     backgroundColor: '#ccc',

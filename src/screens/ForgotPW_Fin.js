@@ -14,10 +14,10 @@ export default function ForgotPWFin({ navigation}) {
           <TouchableOpacity
             style={styles.button}
             onPress={() => {
-              navigation.navigate('SignIn');
+              navigation.navigate('InitialScreen');
             }}
           >
-            <NoScaleText style={styles.buttonText}>로그인 하러 가기</NoScaleText>
+            <NoScaleText style={styles.buttonText}>확인</NoScaleText>
           </TouchableOpacity>
         </View>
       </View>
@@ -47,7 +47,7 @@ export const styles = StyleSheet.create({
   text: {
     fontSize: 18,
     fontWeight: 'bold',
-    marginTop: 80,
+    marginTop: 120,
   },
   info: {
     color: '#575757ff',
@@ -60,9 +60,9 @@ export const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 60,
     alignItems: 'center',
-    width: 150,
+    width: 70,
     alignSelf: 'center',
-    marginTop: 40,
+    marginTop: 20,
   },
   buttonText: {
     color: '#fff',

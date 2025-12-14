@@ -4,6 +4,7 @@ import Social from '../screens/Social';
 import Statistics from '../screens/Statistics';
 import Reward from '../screens/Reward';
 import AccountManagement from '../screens/AccountManagement';
+import EditProfile from '../screens/EditProfile';
 import BackButton from '../components/BackButton';
 
 const Stack = createNativeStackNavigator();
@@ -18,6 +19,16 @@ export default function MyPageStack() {
           title: 'Mypage',
           headerShadowVisible: false,
         }}
+      />
+      <Stack.Screen
+        name="EditProfile"
+        component={EditProfile}
+        options={({ navigation }) => ({
+          title: '프로필 편집',
+          headerLeft: () => <BackButton onPress={() => navigation.goBack()} />,
+          headerShown: true,
+          headerShadowVisible: false,
+        })}
       />
       <Stack.Screen
         name="Social"
