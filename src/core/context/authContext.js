@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect, useRef } from 'react';
 import authService from '../firebase/authService';
 import sessionManager from '../firebase/sessionManager';
 
@@ -7,11 +7,18 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const isLoggingOut = useRef(false);
 
   useEffect(() => {
     // 인증 상태 변경 리스너
     const unsubscribe = authService.onAuthStateChanged(async (firebaseUser) => {
+      // 로그아웃 중이면 처리 스킵
+      if (isLoggingOut.current) {
+        return;
+      }
+
       if (firebaseUser) {
+        console.log('[Auth] User logged in:', firebaseUser.uid);
         setUser({
           uid: firebaseUser.uid,
           email: firebaseUser.email,
@@ -22,31 +29,82 @@ export const AuthProvider = ({ children }) => {
         try {
           await sessionManager.startSession(firebaseUser.uid);
         } catch (error) {
-          console.error('Session start failed:', error);
+          console.error('[Auth] Session start failed:', error);
+          // 세션 시작 실패 시 로그아웃
+          await authService.logOut();
+          setUser(null);
         }
       } else {
+        console.log('[Auth] User logged out');
+        
+        // 현재 사용자 정보가 있고, 로그아웃 중이 아닐 때만 세션 종료
+        if (user && !isLoggingOut.current) {
+          try {
+            await sessionManager.endSession(user.uid);
+          } catch (error) {
+            console.error('[Auth] Session end failed:', error);
+          }
+        }
+        
         setUser(null);
+        isLoggingOut.current = false;
       }
       setLoading(false);
     });
 
-    return unsubscribe;
+    return () => {
+      unsubscribe();
+    };
   }, []);
 
-  const signUp = async (email, password, nickname) => {
+  /**
+   * 1단계: 계정 생성 (이메일/비밀번호)
+   */
+  const createAccount = async (email, password) => {
     try {
-      const userData = await authService.signUp(email, password, nickname);
-      setUser(userData);
-      
-      // 세션 시작
-      await sessionManager.startSession(userData.uid);
-      
-      return userData;
+      const accountData = await authService.createAccount(email, password);
+      return accountData;
     } catch (error) {
       throw error;
     }
   };
 
+  /**
+   * 2단계: 이메일 인증 상태 확인
+   */
+  const checkEmailVerification = async () => {
+    try {
+      return await authService.checkEmailVerification();
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  /**
+   * 인증 이메일 재발송
+   */
+  const resendVerificationEmail = async () => {
+    try {
+      await authService.resendVerificationEmail();
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  /**
+   * 3단계: 닉네임 설정 및 회원가입 완료
+   */
+  const completeSignUp = async (nickname) => {
+    try {
+      return await authService.completeSignUp(nickname);
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  /**
+   * 로그인
+   */
   const signIn = async (email, password) => {
     try {
       const userData = await authService.signIn(email, password);
@@ -61,8 +119,13 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  /**
+   * 로그아웃
+   */
   const logOut = async () => {
     try {
+      isLoggingOut.current = true;
+      
       // 세션 종료
       if (user) {
         await sessionManager.endSession(user.uid);
@@ -71,10 +134,14 @@ export const AuthProvider = ({ children }) => {
       await authService.logOut();
       setUser(null);
     } catch (error) {
+      isLoggingOut.current = false;
       throw error;
     }
   };
 
+  /**
+   * 비밀번호 재설정 이메일 전송
+   */
   const resetPassword = async (email) => {
     try {
       await authService.resetPassword(email);
@@ -83,10 +150,16 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const updateProfile = async (updates) => {
+  /**
+   * 닉네임 업데이트
+   */
+  const updateNickname = async (newNickname) => {
     try {
-      const userData = await authService.updateUserProfile(updates);
-      setUser(userData);
+      const userData = await authService.updateNickname(newNickname);
+      setUser(prevUser => ({
+        ...prevUser,
+        nickname: userData.nickname
+      }));
       return userData;
     } catch (error) {
       throw error;
@@ -96,11 +169,14 @@ export const AuthProvider = ({ children }) => {
   const value = {
     user,
     loading,
-    signUp,
+    createAccount,
+    checkEmailVerification,
+    resendVerificationEmail,
+    completeSignUp,
     signIn,
     logOut,
     resetPassword,
-    updateProfile,
+    updateNickname,
   };
 
   return (
