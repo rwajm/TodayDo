@@ -9,16 +9,13 @@ import { AuthProvider } from './src/core/context/authContext';
 import BackButton from './src/components/BackButton';
 import InitialScreen from './src/screens/InitialScreen';
 import SignUpEmail from './src/screens/SignUp_Email';
-import SignUpEmailCode from './src/screens/SignUp_EmailCode';
 import SignUpPW from './src/screens/SignUp_PW';
 import SignUpName from './src/screens/SignUp_Name';
 import SignUpFin from './src/screens/SignUp_Fin';
 import SignIn from './src/screens/SignIn';
 import ForgotPWEmail from './src/screens/ForgotPW_Email';
-import ForgotPWEmailCode from './src/screens/ForgotPW_EmailCode';
 import ForgotPWNewPW from './src/screens/ForgotPW_NewPW';
 import ForgotPWFin from './src/screens/ForgotPW_Fin';
-import AccountManagement from './src/screens/AccountManagement';
 import ChangePW from './src/screens/ChangePW';
 import NotificationScreen from './src/screens/NotificationScreen';
 import BottomNavigator from './src/navigation/BottomNavigator';
@@ -42,16 +39,6 @@ export default function App() {
               <Stack.Screen
                 name="SignUpEmail"
                 component={SignUpEmail}
-                options={({ navigation }) => ({
-                  title: '회원가입',
-                  headerLeft: () => <BackButton onPress={() => navigation.goBack()} />,
-                  headerShown: true,
-                  headerShadowVisible: false,
-                })}
-              />
-              <Stack.Screen
-                name="SignUpEmailCode"
-                component={SignUpEmailCode}
                 options={({ navigation }) => ({
                   title: '회원가입',
                   headerLeft: () => <BackButton onPress={() => navigation.goBack()} />,
@@ -105,16 +92,6 @@ export default function App() {
                 })}
               />
               <Stack.Screen
-                name="ForgotPWEmailCode"
-                component={ForgotPWEmailCode}
-                options={({ navigation }) => ({
-                  title: '계정복구',
-                  headerLeft: () => <BackButton onPress={() => navigation.goBack()} />,
-                  headerShown: true,
-                  headerShadowVisible: false,
-                })}
-              />
-              <Stack.Screen
                 name="ForgotPWNewPW"
                 component={ForgotPWNewPW}
                 options={({ navigation }) => ({
@@ -129,16 +106,6 @@ export default function App() {
                 component={ForgotPWFin}
                 options={({ navigation }) => ({
                   title: '계정복구',
-                  headerLeft: () => <BackButton onPress={() => navigation.goBack()} />,
-                  headerShown: true,
-                  headerShadowVisible: false,
-                })}
-              />
-              <Stack.Screen
-                name="AccountManagement"
-                component={AccountManagement}
-                options={({ navigation }) => ({
-                  title: '계정관리',
                   headerLeft: () => <BackButton onPress={() => navigation.goBack()} />,
                   headerShown: true,
                   headerShadowVisible: false,

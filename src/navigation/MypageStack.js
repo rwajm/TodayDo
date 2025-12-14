@@ -3,6 +3,7 @@ import Mypage from '../screens/MypageScreen';
 import Social from '../screens/Social';
 import Statistics from '../screens/Statistics';
 import Reward from '../screens/Reward';
+import AccountManagement from '../screens/AccountManagement';
 import BackButton from '../components/BackButton';
 
 const Stack = createNativeStackNavigator();
@@ -43,6 +44,16 @@ export default function MyPageStack() {
         component={Reward}
         options={({ navigation }) => ({
           title: '리워드',
+          headerLeft: () => <BackButton onPress={() => navigation.goBack()} />,
+          headerShown: true,
+          headerShadowVisible: false,
+        })}
+      />
+      <Stack.Screen
+        name="AccountManagement"
+        component={AccountManagement}
+        options={({ navigation }) => ({
+          title: '계정관리',
           headerLeft: () => <BackButton onPress={() => navigation.goBack()} />,
           headerShown: true,
           headerShadowVisible: false,
