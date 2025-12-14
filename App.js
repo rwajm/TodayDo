@@ -19,6 +19,7 @@ import ChangePW from './src/screens/ChangePW';
 import NotificationScreen from './src/screens/NotificationScreen';
 import BottomNavigator from './src/navigation/BottomNavigator';
 import Statistics from './src/screens/Statistics';
+import Reward from './src/screens/Reward';
 
 import { toastConfig } from './src/components/CustomToast';
 import { AuthProvider } from './src/core/context/authContext';
@@ -156,6 +157,16 @@ export default function App() {
                   component={Statistics}
                   options={({ navigation }) => ({
                     title: '통계',
+                    headerLeft: () => <BackButton onPress={() => navigation.goBack()} />,
+                    headerShown: true,
+                    headerShadowVisible: false,
+                  })}
+                />
+                <Stack.Screen
+                  name="Reward"
+                  component={Reward}
+                  options={({ navigation }) => ({
+                    title: '리워드',
                     headerLeft: () => <BackButton onPress={() => navigation.goBack()} />,
                     headerShown: true,
                     headerShadowVisible: false,

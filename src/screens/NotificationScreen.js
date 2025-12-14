@@ -78,7 +78,7 @@ export default function NotificationScreen({navigation}) {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.rewardBanner}>
+      <TouchableOpacity style={styles.rewardBanner} onPress={() => navigation.navigate('Reward')} >
         <Ionicons name="gift-outline" size={20} color="#3A9CFF" style={{ marginRight: 8 }} />
         <NoScaleText style={styles.rewardText}>
           받을 수 있는 리워드가 <NoScaleText style={styles.rewardCount}>{rewardCount}개</NoScaleText> 있습니다!
